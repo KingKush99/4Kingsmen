@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>4Kingsmen</title>
+    <link id="gameFavicon" rel="icon" href="./images/favicon.ico" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="corner-ui">
+      <button id="cornerProfileButton" class="corner-button profile-corner" type="button" aria-label="Profile">C</button>
+      <button id="cornerMenuButton" class="corner-button menu-corner" type="button" aria-label="Menu">&#9776;</button>
+      <div id="miniSlot" class="mini-slot">
+        <strong>Mini Slot</strong>
+        <span id="miniSlotText">No active objective</span>
+      </div>
+    </div>
+    <div id="menuOverlay" class="menu-overlay">
+      <section id="mainMenu" class="menu-screen active">
+        <div class="menu-brand">
+          <span>Official Digital Prototype</span>
+          <h1>4Kingsmen</h1>
+          <p>Capture treasures, guard the crown, and command hidden armies across rival territories.</p>
+        </div>
+        <nav class="menu-stack">
+          <button id="singlePlayerButton" type="button">Single Player</button>
+          <button data-menu-target="multiplayerMenu" type="button">Multiplayer</button>
+          <button data-menu-target="campaignMenu" type="button">Campaign</button>
+          <button data-menu-target="tutorialMenu" type="button">Tutorial</button>
+          <button data-menu-target="profileMenu" type="button">Profile</button>
+          <button data-menu-target="collectionMenu" type="button">Collection</button>
+          <button data-menu-target="customizationMenu" type="button">Customization</button>
+          <button data-menu-target="settingsMenu" type="button">Settings</button>
+          <button id="playNowButton" type="button">Play Now</button>
+        </nav>
+        <div class="menu-news-strip">
+          <button type="button">Daily Challenge</button>
+          <button type="button">Weekly Quest</button>
+          <button type="button">Season Progress</button>
+          <button type="button">News</button>
+        </div>
+      </section>
+
+      <section id="singlePlayerMenu" class="menu-screen">
+        <div class="menu-header">
+          <button class="back-button" data-menu-target="mainMenu" type="button">Back</button>
+          <div>
+            <span>Single Player</span>
+            <h2>Choose Match Flow</h2>
+          </div>
+        </div>
+        <div class="layered-menu-layout">
+          <nav class="layer-list">
+            <button id="createGameButton" type="button">Classic</button>
+            <button data-menu-target="campaignMenu" type="button">Campaign</button>
+            <button data-menu-target="createGameMenu" type="button">Speed Mode</button>
+            <button data-menu-target="createGameMenu" type="button">Fog of War</button>
+            <button data-menu-target="advancedMenu" type="button">Custom Rules</button>
+            <button data-menu-target="createGameMenu" type="button">Challenge Maps</button>
+            <button data-menu-target="createGameMenu" type="button">AI Tournament</button>
+            <button data-menu-target="createGameMenu" type="button">Sandbox</button>
+          </nav>
+          <div class="menu-detail-panel">
+            <h3>Classic</h3>
+            <p>Choose player count, theme tier, difficulty, and advanced rule toggles before starting.</p>
+            <div id="playerLevelSummary" class="player-level-summary"></div>
+            <div class="compact-choice-grid">
+              <button data-player-preset="2" type="button">2 Players</button>
+              <button data-player-preset="3" type="button">3 Players</button>
+              <button data-player-preset="4" type="button">4 Players</button>
+            </div>
+            <h3 class="small-heading">Single Player Level</h3>
+            <div id="aiCharacterPreview" class="ai-character-preview"></div>
+            <h3 class="small-heading">Commander Character</h3>
+            <div id="playerCharacterPreview" class="ai-character-preview"></div>
+            <button id="quickDuelButton" class="primary-menu-action" type="button">Quick Duel</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="multiplayerMenu" class="menu-screen">
+        <div class="menu-header">
+          <button class="back-button" data-menu-target="mainMenu" type="button">Back</button>
+          <div>
+            <span>Multiplayer</span>
+            <h2>Compete Online</h2>
+          </div>
+        </div>
+        <div class="layered-menu-layout">
+          <nav class="layer-list">
+            <button id="localMultiplayerButton" type="button">Local Multiplayer</button>
+            <button id="onlineMultiplayerButton" type="button">Online Multiplayer</button>
+            <button type="button">Quick Match</button>
+            <button type="button">Ranked</button>
+            <button type="button">Casual</button>
+            <button type="button">Private Lobby</button>
+            <button type="button">Friends</button>
+            <button type="button">Tournaments</button>
+            <button type="button">Clan Battles</button>
+            <button type="button">Replay Browser</button>
+          </nav>
+          <div class="menu-detail-panel">
+            <h3>Multiplayer</h3>
+            <p>Local multiplayer is hot-seat on this device. Online multiplayer needs a WebSocket server and room system before real remote players can join.</p>
+            <button id="startLocalMultiplayerButton" class="primary-menu-action" type="button">Start Local Match</button>
+            <button id="showOnlineSetupButton" type="button">View Online Server Plan</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="campaignMenu" class="menu-screen">
+        <div class="menu-header">
+          <button class="back-button" data-menu-target="mainMenu" type="button">Back</button>
+          <div>
+            <span>Campaign</span>
+            <h2>Chapters And Rewards</h2>
+          </div>
+        </div>
+        <div class="menu-cards">
+          <button class="large-menu-card" data-campaign-level="beginner" type="button"><strong>Beginner Chapter</strong><span>Unlock phrase: Crown before conquest.</span></button>
+          <button class="large-menu-card" data-campaign-level="novice" type="button"><strong>Novice Chapter</strong><span>Locked until Beginner is beaten.</span></button>
+          <button class="large-menu-card" data-campaign-level="intermediate" type="button"><strong>Intermediate Chapter</strong><span>Locked until Novice is beaten.</span></button>
+          <button class="large-menu-card" data-campaign-level="pro" type="button"><strong>Pro Chapter</strong><span>Locked until Intermediate is beaten.</span></button>
+          <button class="large-menu-card" data-campaign-level="worldClass" type="button"><strong>World-Class Chapter</strong><span>Locked until Pro is beaten.</span></button>
+        </div>
+      </section>
+
+      <section id="tutorialMenu" class="menu-screen">
+        <div class="menu-header">
+          <button class="back-button" data-menu-target="mainMenu" type="button">Back</button>
+          <div>
+            <span>Tutorial</span>
+            <h2>Learn The Crown War</h2>
+          </div>
+        </div>
+        <div class="menu-cards">
+          <button id="watchTutorialButton" class="large-menu-card" type="button"><strong>Watch AI Tutorial</strong><span>AI players demonstrate movement, fog, economy, and treasure capture.</span></button>
+          <button id="watchUnitTutorialButton" class="large-menu-card" type="button"><strong>Unit Mastery Demo</strong><span>AI players cycle through unit actions and animations.</span></button>
+        </div>
+      </section>
+
+      <section id="profileMenu" class="menu-screen setup-screen">
+        <div class="menu-header">
+          <button class="back-button" data-menu-target="mainMenu" type="button">Back</button>
+          <div>
+            <span>Profile</span>
+            <h2>Commander Record</h2>
+          </div>
+        </div>
+        <div class="tabbed-panel">
+          <nav class="layer-list">
+            <button type="button">Overview</button>
+            <button type="button">Statistics</button>
+            <button type="button">Units</button>
+            <button type="button">Economy</button>
+            <button type="button">Achievements</button>
+            <button type="button">Match History</button>
+          </nav>
+          <div class="menu-detail-panel stats-grid">
+            <div><strong>Tokens Earned</strong><span>0</span></div>
+            <div><strong>Mines Planted</strong><span>0</span></div>
+            <div><strong>Tiles Discovered</strong><span>0</span></div>
+            <div><strong>Kings Captured</strong><span>0</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="collectionMenu" class="menu-screen setup-screen">
+        <div class="menu-header">
+          <button class="back-button" data-menu-target="mainMenu" type="button">Back</button>
+          <div>
+            <span>Collection</span>
+            <h2>4Kingsmen Encyclopedia</h2>
+          </div>
+        </div>
+        <div class="tabbed-panel">
+          <nav class="layer-list">
+            <button type="button">Units</button>
+            <button type="button">Maps</button>
+            <button type="button">Themes</button>
+            <button type="button">Strategies</button>
+            <button type="button">Tips</button>
+          </nav>
+          <div class="menu-detail-panel">
+            <h3>Units</h3>
+            <p>Cost, abilities, counters, strengths, weaknesses, animations, and unlock requirements will live here.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="customizationMenu" class="menu-screen">
+        <div class="menu-header">
+          <button class="back-button" data-menu-target="mainMenu" type="button">Back</button>
+          <div>
+            <span>Customization</span>
+            <h2>Themes And Banners</h2>
+          </div>
+        </div>
+        <div class="menu-cards">
+          <button class="large-menu-card" type="button"><strong>Theme Tiers</strong><span>Standard, Cyber Reign, Mythic Realms, and more.</span></button>
+          <button class="large-menu-card" type="button"><strong>Profile Banner</strong><span>Choose your crown identity.</span></button>
+        </div>
+      </section>
+
+      <section id="settingsMenu" class="menu-screen setup-screen">
+        <div class="menu-header">
+          <button class="back-button" data-menu-target="mainMenu" type="button">Back</button>
+          <div>
+            <span>Settings</span>
+            <h2>Options</h2>
+          </div>
+        </div>
+        <div class="tabbed-panel">
+          <nav class="layer-list">
+            <button type="button">Graphics</button>
+            <button type="button">Audio</button>
+            <button type="button">Controls</button>
+            <button type="button">Gameplay</button>
+            <button type="button">Accessibility</button>
+            <button type="button">Developer Options</button>
+          </nav>
+          <div class="menu-detail-panel">
+            <h3 id="settingsPanelTitle">Controls</h3>
+            <div id="settingsOptions" class="settings-options"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="createGameMenu" class="menu-screen setup-screen">
+        <div class="menu-header">
+          <button class="back-button" data-menu-target="singlePlayerMenu" type="button">Back</button>
+          <div>
+            <span>Create Game</span>
+            <h2>Setup 4Kingsmen</h2>
+          </div>
+        </div>
+        <div class="setup-grid">
+          <div class="setup-column">
+            <label>
+              Preset
+              <select id="presetSelect">
+                <option value="official">Official Standard</option>
+                <option value="duel">Duel of Crowns</option>
+                <option value="triad">Triad Siege</option>
+                <option value="chaos">Full Chaos</option>
+              </select>
+            </label>
+            <label>
+              Players
+              <select id="setupPlayerCount">
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4" selected>4</option>
+              </select>
+            </label>
+            <label>
+              Theme Tier
+              <select id="setupThemeTier">
+                <option value="standard">Standard</option>
+                <option value="galactic">Galactic Frontier</option>
+                <option value="legends">Hall of Legends</option>
+                <option value="stage">Stage Kings</option>
+                <option value="arena">Arena Domination</option>
+                <option value="cyber">Cyber Reign</option>
+                <option value="mythic">Mythic Realms</option>
+                <option value="world">World Powers</option>
+                <option value="wilderness">Fantasy Wilderness</option>
+              </select>
+            </label>
+            <label>
+              AI Difficulty
+              <select id="aiDifficulty">
+                <option value="beginner" selected>Beginner</option>
+                <option value="novice">Novice</option>
+                <option value="intermediate">Intermediate</option>
+                <option value="pro">Pro</option>
+                <option value="worldClass">World-Class</option>
+              </select>
+            </label>
+          </div>
+          <div class="setup-column">
+            <div class="preset-summary" id="presetSummary"></div>
+            <button id="advancedSetupButton" type="button">Advanced Setup</button>
+            <button id="startConfiguredGameButton" class="primary-menu-action" type="button">Start Game</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="advancedMenu" class="menu-screen setup-screen">
+        <div class="menu-header">
+          <button class="back-button" data-menu-target="createGameMenu" type="button">Back</button>
+          <div>
+            <span>Advanced Setup</span>
+            <h2>Rules And Abilities</h2>
+          </div>
+        </div>
+        <div class="advanced-layout">
+          <div>
+            <h3>Ability Rules</h3>
+            <div id="abilityToggles" class="toggle-list"></div>
+          </div>
+          <div>
+            <h3>Match Presets</h3>
+            <p class="advanced-note">Preset changes update the create-game settings. Individual ability toggles stay editable until Start Game.</p>
+            <button id="enableAllAbilities" type="button">Enable All</button>
+            <button id="disableSpecialAbilities" type="button">Core Rules Only</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <main class="app-shell">
+      <section class="topbar">
+        <div>
+          <h1>4Kingsmen</h1>
+          <p id="phaseText">Configure a match and place your first units.</p>
+        </div>
+        <div class="match-controls">
+          <label>
+            Players
+            <select id="playerCount">
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4" selected>4</option>
+            </select>
+          </label>
+          <label>
+            Theme
+            <select id="themeTier">
+              <option value="standard">Standard</option>
+              <option value="galactic">Galactic Frontier</option>
+              <option value="legends">Hall of Legends</option>
+              <option value="stage">Stage Kings</option>
+              <option value="arena">Arena Domination</option>
+              <option value="cyber">Cyber Reign</option>
+              <option value="mythic">Mythic Realms</option>
+              <option value="world">World Powers</option>
+              <option value="wilderness">Fantasy Wilderness</option>
+            </select>
+          </label>
+          <button id="newGameButton" type="button">New Match</button>
+          <button id="openMenuButton" type="button">Menu</button>
+        </div>
+      </section>
+
+      <section class="game-layout">
+        <aside class="panel left-panel">
+          <div class="status-card">
+            <span class="label">Active Player</span>
+            <strong id="activePlayer">Player 1</strong>
+            <span id="turnTimer">20s</span>
+          </div>
+          <div class="status-grid">
+            <div>
+              <span class="label">Tokens</span>
+              <strong id="tokenCount">1000</strong>
+            </div>
+            <div>
+              <span class="label">Move Cost</span>
+              <strong id="moveCost">100</strong>
+            </div>
+            <div>
+              <span class="label">Unit Cap</span>
+              <strong id="unitCap">10</strong>
+            </div>
+            <div>
+              <span class="label">Grid</span>
+              <strong id="gridSize">6x6</strong>
+            </div>
+          </div>
+
+          <div class="section-title">
+            <h2>Deploy</h2>
+            <span id="typeLimit">7 types</span>
+          </div>
+          <div id="shop" class="shop"></div>
+        </aside>
+
+        <section class="board-wrap">
+          <canvas id="gameCanvas" aria-label="4Kingsmen 3D board"></canvas>
+          <div class="field-toolbar">
+            <div class="segmented">
+              <button id="selectModeButton" class="active" type="button">Select</button>
+              <button id="dragModeButton" type="button">Drag Field</button>
+            </div>
+            <label>
+              Rotate
+              <input id="fieldRotate" type="range" min="-180" max="180" value="0" />
+            </label>
+            <label>
+              Tilt
+              <input id="fieldTilt" type="range" min="-12" max="12" value="0" />
+            </label>
+            <label>
+              Zoom
+              <input id="fieldScale" type="range" min="35" max="160" value="100" />
+            </label>
+            <label class="checkbox-control">
+              <input id="coordinateToggle" type="checkbox" checked />
+              Coordinates
+            </label>
+            <button id="fitBoardButton" type="button">Fit Board</button>
+            <button id="resetFieldButton" type="button">Reset</button>
+          </div>
+          <div class="canvas-hud">
+            <div id="selectionText">Select a unit or deploy from the shop.</div>
+            <button id="pauseTutorialButton" type="button" hidden>Pause Demo</button>
+            <button id="endTurnButton" type="button">End Turn</button>
+          </div>
+        </section>
+
+        <aside class="panel right-panel">
+          <div class="section-title">
+            <h2>Command</h2>
+            <span id="phaseBadge">Setup</span>
+          </div>
+          <div id="selectedUnit" class="selected-unit">No unit selected.</div>
+          <div class="action-grid">
+            <button id="attackButton" type="button">Attack</button>
+            <button id="abilityButton" type="button">Ability</button>
+            <button id="mineButton" type="button">Build Mine</button>
+            <button id="passButton" type="button">Pass</button>
+          </div>
+          <div class="rules-box">
+            <h2>Rule State</h2>
+            <ul id="ruleState"></ul>
+          </div>
+          <div class="log-box">
+            <h2>Battle Log</h2>
+            <div id="battleLog"></div>
+          </div>
+        </aside>
+      </section>
+    </main>
+
+    <section id="chatWidget" class="chat-widget">
+      <button id="chatToggle" class="chat-toggle" type="button">?</button>
+      <div id="chatPanel" class="chat-panel" hidden>
+        <div class="chat-header">
+          <strong>4Kingsmen Guide</strong>
+          <button id="chatClose" type="button">Close</button>
+        </div>
+        <div id="chatMessages" class="chat-messages">
+          <div class="chat-message bot">Welcome. Ask in any language about movement, fog, treasure, mines, AI levels, or how to win. You can also attach screenshots, screen recordings, audio, or use voice input.</div>
+        </div>
+        <div class="chat-tools">
+          <label>
+            Language
+            <select id="chatLanguage">
+              <option value="auto">Auto</option>
+              <option value="en-US">English</option>
+              <option value="es-ES">Espanol</option>
+              <option value="fr-FR">Francais</option>
+              <option value="de-DE">Deutsch</option>
+              <option value="pt-BR">Portugues</option>
+              <option value="zh-CN">Chinese</option>
+              <option value="ja-JP">Japanese</option>
+            </select>
+          </label>
+          <label class="file-tool">
+            Attach
+            <input id="chatFileInput" type="file" accept="image/*,video/*,audio/*" multiple />
+          </label>
+          <button id="voiceInputButton" type="button">Speak</button>
+        </div>
+        <form id="chatForm" class="chat-form">
+          <input id="chatInput" type="text" placeholder="Ask about the game..." autocomplete="off" />
+          <button type="submit">Ask</button>
+        </form>
+      </div>
+    </section>
+
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.165.0/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three@0.165.0/examples/jsm/"
+        }
+      }
+    </script>
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>
