@@ -23,18 +23,31 @@
           <h1>4Kingsmen</h1>
           <p>Capture treasures, guard the crown, and command hidden armies across rival territories.</p>
         </div>
-        <nav class="menu-stack">
-          <button id="singlePlayerButton" type="button">Single Player</button>
-          <button data-menu-target="multiplayerMenu" type="button">Multiplayer</button>
-          <button data-menu-target="campaignMenu" type="button">Campaign</button>
-          <button data-menu-target="tutorialMenu" type="button">Tutorial</button>
-          <button data-menu-target="profileMenu" type="button">Profile</button>
-          <button data-menu-target="collectionMenu" type="button">Collection</button>
-          <button data-menu-target="customizationMenu" type="button">Customization</button>
-          <button data-menu-target="settingsMenu" type="button">Settings</button>
-          <button id="playNowButton" type="button">Play Now</button>
+        <div class="royal-filter-bar" aria-label="Menu filter controls">
+          <button class="active" type="button"><span>Ledger</span><strong>Default</strong></button>
+          <button type="button"><span>Standard</span><strong>Use</strong></button>
+          <button type="button"><span>A-Z</span><strong>Name</strong></button>
+          <button type="button"><span>Heraldry</span><strong>Color</strong></button>
+        </div>
+        <nav class="royal-tile-grid" aria-label="Main navigation">
+          <button id="playNowButton" class="royal-tile crimson" type="button"><span class="tile-icon">Crown</span><strong>Live</strong><small>Resume the crown war</small></button>
+          <button class="royal-tile emerald" data-menu-target="collectionMenu" type="button"><span class="tile-icon">Cart</span><strong>Shop</strong><small>Units, mine plans, banners</small></button>
+          <button class="royal-tile amber" data-menu-target="collectionMenu" type="button"><span class="tile-icon">Trophy</span><strong>Auctions</strong><small>Season rewards and relics</small></button>
+          <button class="royal-tile violet" data-menu-target="customizationMenu" type="button"><span class="tile-icon">Dice</span><strong>Variations</strong><small>Presets and custom rules</small></button>
+          <button class="royal-tile blue" data-menu-target="profileMenu" type="button"><span class="tile-icon">Council</span><strong>Players</strong><small>Commanders and records</small></button>
+          <button id="singlePlayerButton" class="royal-tile indigo" type="button"><span class="tile-icon">Gamepad</span><strong>Single Player</strong><small>AI levels and campaign unlocks</small></button>
+          <button class="royal-tile teal" data-menu-target="multiplayerMenu" type="button"><span class="tile-icon">Globe</span><strong>Multiplayer</strong><small>Local, online, ranked, lobbies</small></button>
+          <button class="royal-tile ember" data-menu-target="campaignMenu" type="button"><span class="tile-icon">Swords</span><strong>Campaign</strong><small>Chapters and secret phrases</small></button>
+          <button class="royal-tile forest" data-menu-target="tutorialMenu" type="button"><span class="tile-icon">Scroll</span><strong>Rules Guide</strong><small>Watch AI demos and learn</small></button>
+          <button class="royal-tile rose" data-menu-target="customizationMenu" type="button"><span class="tile-icon">Palette</span><strong>Themes</strong><small>Kingdom tiers and banners</small></button>
+          <button class="royal-tile bronze" data-menu-target="profileMenu" type="button"><span class="tile-icon">Medal</span><strong>Leaderboard</strong><small>Rank, ELO, match history</small></button>
+          <button class="royal-tile moss" data-menu-target="profileMenu" type="button"><span class="tile-icon">Cup</span><strong>Achievements</strong><small>Awards and milestones</small></button>
+          <button class="royal-tile purple" data-menu-target="profileMenu" type="button"><span class="tile-icon">Knight</span><strong>Profile</strong><small>Your royal identity</small></button>
+          <button class="royal-tile burgundy" data-menu-target="settingsMenu" type="button"><span class="tile-icon">Lyre</span><strong>Music</strong><small>Theme, effects, voice</small></button>
+          <button class="royal-tile slate" data-menu-target="settingsMenu" type="button"><span class="tile-icon">Gear</span><strong>Settings</strong><small>Graphics, controls, access</small></button>
+          <button class="royal-tile oxblood" data-menu-target="collectionMenu" type="button"><span class="tile-icon">?</span><strong>FAQ</strong><small>Answers and strategy help</small></button>
         </nav>
-        <div class="menu-news-strip">
+        <div class="menu-news-strip command-strip">
           <button type="button">Daily Challenge</button>
           <button type="button">Weekly Quest</button>
           <button type="button">Season Progress</button>

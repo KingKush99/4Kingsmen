@@ -83,15 +83,18 @@ input[type="range"] {
   inset: 0;
   z-index: 20;
   display: grid;
-  place-items: center;
+  place-items: start center;
   padding: 78px 34px 84px;
   overflow: auto;
   background:
-    radial-gradient(circle at 20% 25%, rgba(215, 168, 66, 0.18) 0 1px, transparent 1px 18px),
-    linear-gradient(90deg, rgba(9, 12, 11, 0.94), rgba(9, 12, 11, 0.58)),
+    linear-gradient(rgba(231, 195, 111, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(231, 195, 111, 0.05) 1px, transparent 1px),
+    radial-gradient(circle at 50% 0%, rgba(215, 168, 66, 0.2), transparent 34%),
+    linear-gradient(90deg, rgba(9, 12, 11, 0.96), rgba(23, 19, 13, 0.78), rgba(9, 12, 11, 0.9)),
     var(--menu-theme-image) center / cover no-repeat,
     #0b0f0d;
-  background-repeat: repeat, no-repeat, no-repeat, no-repeat;
+  background-size: 42px 42px, 42px 42px, auto, auto, cover, auto;
+  background-repeat: repeat, repeat, no-repeat, no-repeat, no-repeat, no-repeat;
 }
 
 .menu-overlay.hidden {
@@ -100,12 +103,12 @@ input[type="range"] {
 
 .menu-screen {
   position: relative;
-  width: min(1040px, 100%);
-  min-height: min(640px, calc(100vh - 60px));
+  width: min(1160px, 100%);
+  min-height: min(680px, calc(100vh - 60px));
   display: none;
-  align-content: center;
-  justify-items: start;
-  gap: 22px;
+  align-content: start;
+  justify-items: stretch;
+  gap: 18px;
 }
 
 .menu-screen.active {
@@ -113,8 +116,8 @@ input[type="range"] {
 }
 
 .menu-brand {
-  max-width: 620px;
-  padding: 22px 0 6px;
+  max-width: 780px;
+  padding: 12px 0 0;
 }
 
 .menu-brand span,
@@ -127,7 +130,7 @@ input[type="range"] {
 
 .menu-brand h1 {
   margin-top: 8px;
-  font-size: clamp(54px, 9vw, 104px);
+  font-size: clamp(54px, 8vw, 96px);
   line-height: 0.9;
   text-shadow: 0 10px 28px rgba(0, 0, 0, 0.55);
 }
@@ -143,6 +146,142 @@ input[type="range"] {
   display: grid;
   gap: 6px;
 }
+
+.royal-filter-bar {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid rgba(215, 168, 66, 0.28);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(43, 50, 47, 0.96), rgba(26, 31, 29, 0.94));
+  box-shadow: inset 0 1px 0 rgba(255, 244, 204, 0.08), 0 16px 34px rgba(0, 0, 0, 0.34);
+}
+
+.royal-filter-bar button {
+  min-height: 70px;
+  display: grid;
+  place-items: center;
+  gap: 3px;
+  border-color: rgba(215, 168, 66, 0.24);
+  background: rgba(17, 22, 22, 0.78);
+}
+
+.royal-filter-bar button.active {
+  background: linear-gradient(180deg, rgba(117, 77, 31, 0.94), rgba(67, 45, 28, 0.95));
+  border-color: rgba(239, 202, 111, 0.72);
+}
+
+.royal-filter-bar span {
+  color: var(--gold);
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.royal-filter-bar strong {
+  font-size: 14px;
+}
+
+.royal-tile-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.royal-tile {
+  position: relative;
+  min-height: 124px;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 6px;
+  padding: 16px 18px;
+  overflow: hidden;
+  border: 1px solid rgba(244, 211, 128, 0.38);
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 85% 12%, rgba(255, 255, 255, 0.18), transparent 0 10px, transparent 11px),
+    linear-gradient(145deg, rgba(84, 54, 31, 0.95), rgba(33, 29, 24, 0.94));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 244, 204, 0.13),
+    inset 0 -9px 20px rgba(0, 0, 0, 0.16),
+    0 14px 28px rgba(0, 0, 0, 0.34);
+  text-align: center;
+}
+
+.royal-tile::before {
+  content: "";
+  position: absolute;
+  inset: 7px;
+  border: 1px solid rgba(255, 232, 166, 0.16);
+  border-radius: 5px;
+  pointer-events: none;
+}
+
+.royal-tile::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 232, 166, 0.22), transparent);
+  transform: translateX(-80%);
+  transition: opacity 180ms ease, transform 360ms ease;
+}
+
+.royal-tile:hover::after {
+  opacity: 1;
+  transform: translateX(80%);
+}
+
+.royal-tile strong {
+  position: relative;
+  z-index: 1;
+  font-size: 19px;
+  line-height: 1.1;
+}
+
+.royal-tile small {
+  position: relative;
+  z-index: 1;
+  max-width: 210px;
+  color: rgba(242, 241, 233, 0.75);
+  font-size: 12px;
+  line-height: 1.25;
+}
+
+.tile-icon {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  min-width: 52px;
+  height: 28px;
+  color: #23190d;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #f1d681, #b27a28);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.36);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.royal-tile.crimson { background: linear-gradient(145deg, #731919, #2c1615); }
+.royal-tile.emerald { background: linear-gradient(145deg, #166237, #172b20); }
+.royal-tile.amber { background: linear-gradient(145deg, #8a5a0f, #312414); }
+.royal-tile.violet { background: linear-gradient(145deg, #5d2b82, #271c35); }
+.royal-tile.blue { background: linear-gradient(145deg, #1f4f8e, #18263f); }
+.royal-tile.indigo { background: linear-gradient(145deg, #3b3186, #211e3d); }
+.royal-tile.teal { background: linear-gradient(145deg, #15706b, #172d2b); }
+.royal-tile.ember { background: linear-gradient(145deg, #963f10, #311b13); }
+.royal-tile.forest { background: linear-gradient(145deg, #126148, #162c25); }
+.royal-tile.rose { background: linear-gradient(145deg, #8d1748, #331722); }
+.royal-tile.bronze { background: linear-gradient(145deg, #8b4c12, #32200f); }
+.royal-tile.moss { background: linear-gradient(145deg, #4f7415, #202b13); }
+.royal-tile.purple { background: linear-gradient(145deg, #5b2086, #251832); }
+.royal-tile.burgundy { background: linear-gradient(145deg, #8d1433, #32141c); }
+.royal-tile.slate { background: linear-gradient(145deg, #46515f, #1b222b); }
+.royal-tile.oxblood { background: linear-gradient(145deg, #761719, #2b1213); }
 
 .menu-stack button,
 .layer-list button,
@@ -167,10 +306,14 @@ input[type="range"] {
 
 .menu-news-strip {
   align-self: end;
-  width: min(780px, 100%);
+  width: 100%;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
+}
+
+.command-strip {
+  margin-top: 2px;
 }
 
 .corner-button {
