@@ -12,8 +12,21 @@
       <button id="cornerProfileButton" class="corner-button profile-corner" type="button" aria-label="Profile">C</button>
       <button id="cornerMenuButton" class="corner-button menu-corner" type="button" aria-label="Menu">&#9776;</button>
       <div id="miniSlot" class="mini-slot">
-        <strong>Mini Slot</strong>
-        <span id="miniSlotText">No active objective</span>
+        <button id="reelsToggle" class="reels-toggle" type="button">
+          <span>Reels</span>
+          <strong id="miniSlotText">3</strong>
+        </button>
+        <button id="slotLever" class="slot-lever" type="button" aria-label="Pull reels lever"><span></span></button>
+        <div id="reelsPanel" class="corner-dropup reels-panel" hidden>
+          <button class="red-x mini-close" data-close-panel="reelsPanel" type="button" aria-label="Close reels">X</button>
+          <strong>Reel Count</strong>
+          <div class="reel-options">
+            <button type="button" data-reels="3">3</button>
+            <button type="button" data-reels="4">4</button>
+            <button type="button" data-reels="5">5</button>
+            <button type="button" data-reels="6">6</button>
+          </div>
+        </div>
       </div>
     </div>
     <div id="menuOverlay" class="menu-overlay">
@@ -21,32 +34,38 @@
         <div class="menu-brand">
           <span>Official Digital Prototype</span>
           <h1>4Kingsmen</h1>
+          <div class="kingdom-slogan" aria-label="4Kingsmen slogan">
+            <span>Guard the Crown.</span>
+            <span>Claim the Treasure.</span>
+            <span>Rule the Realm.</span>
+          </div>
           <p>Capture treasures, guard the crown, and command hidden armies across rival territories.</p>
         </div>
         <div class="royal-filter-bar" aria-label="Menu filter controls">
-          <button class="active" type="button"><span>Ledger</span><strong>Default</strong></button>
-          <button type="button"><span>Standard</span><strong>Use</strong></button>
-          <button type="button"><span>A-Z</span><strong>Name</strong></button>
-          <button type="button"><span>Heraldry</span><strong>Color</strong></button>
+          <button class="active" data-sort="default" type="button"><span>Ledger</span><strong>Default</strong></button>
+          <button data-sort="use" type="button"><span>Standard</span><strong>Use</strong></button>
+          <button data-sort="name" type="button"><span>A-Z</span><strong>Name</strong></button>
+          <button data-sort="color" type="button"><span>Heraldry</span><strong>Color</strong></button>
         </div>
         <nav class="royal-tile-grid" aria-label="Main navigation">
-          <button id="playNowButton" class="royal-tile crimson" type="button"><span class="tile-icon">Crown</span><strong>Live</strong><small>Resume the crown war</small></button>
-          <button class="royal-tile emerald" data-menu-target="collectionMenu" type="button"><span class="tile-icon">Cart</span><strong>Shop</strong><small>Units, mine plans, banners</small></button>
-          <button class="royal-tile amber" data-menu-target="collectionMenu" type="button"><span class="tile-icon">Trophy</span><strong>Auctions</strong><small>Season rewards and relics</small></button>
-          <button class="royal-tile violet" data-menu-target="customizationMenu" type="button"><span class="tile-icon">Dice</span><strong>Variations</strong><small>Presets and custom rules</small></button>
-          <button class="royal-tile blue" data-menu-target="profileMenu" type="button"><span class="tile-icon">Council</span><strong>Players</strong><small>Commanders and records</small></button>
-          <button id="singlePlayerButton" class="royal-tile indigo" type="button"><span class="tile-icon">Gamepad</span><strong>Single Player</strong><small>AI levels and campaign unlocks</small></button>
-          <button class="royal-tile teal" data-menu-target="multiplayerMenu" type="button"><span class="tile-icon">Globe</span><strong>Multiplayer</strong><small>Local, online, ranked, lobbies</small></button>
-          <button class="royal-tile ember" data-menu-target="campaignMenu" type="button"><span class="tile-icon">Swords</span><strong>Campaign</strong><small>Chapters and secret phrases</small></button>
-          <button class="royal-tile forest" data-menu-target="tutorialMenu" type="button"><span class="tile-icon">Scroll</span><strong>Rules Guide</strong><small>Watch AI demos and learn</small></button>
-          <button class="royal-tile rose" data-menu-target="customizationMenu" type="button"><span class="tile-icon">Palette</span><strong>Themes</strong><small>Kingdom tiers and banners</small></button>
-          <button class="royal-tile bronze" data-menu-target="profileMenu" type="button"><span class="tile-icon">Medal</span><strong>Leaderboard</strong><small>Rank, ELO, match history</small></button>
-          <button class="royal-tile moss" data-menu-target="profileMenu" type="button"><span class="tile-icon">Cup</span><strong>Achievements</strong><small>Awards and milestones</small></button>
-          <button class="royal-tile purple" data-menu-target="profileMenu" type="button"><span class="tile-icon">Knight</span><strong>Profile</strong><small>Your royal identity</small></button>
-          <button class="royal-tile burgundy" data-menu-target="settingsMenu" type="button"><span class="tile-icon">Lyre</span><strong>Music</strong><small>Theme, effects, voice</small></button>
-          <button class="royal-tile slate" data-menu-target="settingsMenu" type="button"><span class="tile-icon">Gear</span><strong>Settings</strong><small>Graphics, controls, access</small></button>
-          <button class="royal-tile oxblood" data-menu-target="collectionMenu" type="button"><span class="tile-icon">?</span><strong>FAQ</strong><small>Answers and strategy help</small></button>
+          <button id="playNowButton" class="royal-tile crimson" data-action="live" data-color-score="9" data-use-score="10" type="button"><span class="tile-icon">Crown</span><strong>Live</strong><small>Resume the crown war</small></button>
+          <button id="shopTileButton" class="royal-tile emerald" data-action="shop" data-color-score="8" data-use-score="9" type="button"><span class="tile-icon">Cart</span><strong>Shop</strong><small>Units, mine plans, banners</small></button>
+          <button id="auctionsTileButton" class="royal-tile amber" data-action="auctions" data-color-score="7" data-use-score="4" type="button"><span class="tile-icon">Trophy</span><strong>Auctions</strong><small>Season rewards and relics</small></button>
+          <button id="variationsTileButton" class="royal-tile violet" data-action="variations" data-color-score="10" data-use-score="5" type="button"><span class="tile-icon">Dice</span><strong>Variations</strong><small>Presets and custom rules</small></button>
+          <button id="playersTileButton" class="royal-tile blue" data-action="players" data-color-score="7" data-use-score="6" type="button"><span class="tile-icon">Council</span><strong>Players</strong><small>Commanders and records</small></button>
+          <button id="singlePlayerButton" class="royal-tile indigo" data-action="singlePlayer" data-color-score="6" data-use-score="10" type="button"><span class="tile-icon">Gamepad</span><strong>Single Player</strong><small>AI levels and campaign unlocks</small></button>
+          <button class="royal-tile teal" data-action="multiplayer" data-color-score="6" data-use-score="7" type="button"><span class="tile-icon">Globe</span><strong>Multiplayer</strong><small>Local, online, ranked, lobbies</small></button>
+          <button class="royal-tile ember" data-action="campaign" data-color-score="8" data-use-score="7" type="button"><span class="tile-icon">Swords</span><strong>Campaign</strong><small>Chapters and secret phrases</small></button>
+          <button class="royal-tile forest" data-action="rules" data-color-score="4" data-use-score="8" type="button"><span class="tile-icon">Scroll</span><strong>Rules Guide</strong><small>Watch AI demos and learn</small></button>
+          <button class="royal-tile rose" data-action="themes" data-color-score="9" data-use-score="6" type="button"><span class="tile-icon">Palette</span><strong>Themes</strong><small>Kingdom tiers and banners</small></button>
+          <button class="royal-tile bronze" data-action="leaderboard" data-color-score="5" data-use-score="4" type="button"><span class="tile-icon">Medal</span><strong>Leaderboard</strong><small>Rank, ELO, match history</small></button>
+          <button class="royal-tile moss" data-action="achievements" data-color-score="4" data-use-score="5" type="button"><span class="tile-icon">Cup</span><strong>Achievements</strong><small>Awards and milestones</small></button>
+          <button class="royal-tile purple" data-action="profile" data-color-score="8" data-use-score="8" type="button"><span class="tile-icon">Knight</span><strong>Profile</strong><small>Your royal identity</small></button>
+          <button class="royal-tile burgundy" data-action="music" data-color-score="7" data-use-score="3" type="button"><span class="tile-icon">Lyre</span><strong>Music</strong><small>Theme, effects, voice</small></button>
+          <button class="royal-tile slate" data-action="settings" data-color-score="2" data-use-score="8" type="button"><span class="tile-icon">Gear</span><strong>Settings</strong><small>Graphics, controls, access</small></button>
+          <button class="royal-tile oxblood" data-action="faq" data-color-score="3" data-use-score="6" type="button"><span class="tile-icon">?</span><strong>FAQ</strong><small>Answers and strategy help</small></button>
         </nav>
+        <div id="tileDropdown" class="tile-dropdown" hidden></div>
         <div class="menu-news-strip command-strip">
           <button type="button">Daily Challenge</button>
           <button type="button">Weekly Quest</button>
@@ -161,20 +180,59 @@
             <h2>Commander Record</h2>
           </div>
         </div>
-        <div class="tabbed-panel">
-          <nav class="layer-list">
-            <button type="button">Overview</button>
-            <button type="button">Statistics</button>
-            <button type="button">Units</button>
-            <button type="button">Economy</button>
-            <button type="button">Achievements</button>
-            <button type="button">Match History</button>
-          </nav>
-          <div class="menu-detail-panel stats-grid">
-            <div><strong>Tokens Earned</strong><span>0</span></div>
-            <div><strong>Mines Planted</strong><span>0</span></div>
-            <div><strong>Tiles Discovered</strong><span>0</span></div>
-            <div><strong>Kings Captured</strong><span>0</span></div>
+        <div class="profile-command">
+          <div class="profile-hero-panel">
+            <div class="profile-identity">
+              <div class="profile-avatar-seal">C</div>
+              <div>
+                <span>Guest Commander</span>
+                <h3>Connor of the Four Crowns</h3>
+                <div class="level-track"><span id="profileLevelFill"></span></div>
+                <small id="profileLevelText">Level 1 - 0 / 500 XP</small>
+              </div>
+            </div>
+            <div class="profile-actions">
+              <button id="googleLoginButton" type="button">Sign in with Google</button>
+              <button id="syncProfileButton" type="button">Sync Cloud Stats</button>
+            </div>
+          </div>
+          <div class="profile-stats-grid">
+            <div><strong id="profileCoins">0</strong><span>Coins</span></div>
+            <div><strong>0</strong><span>Followers</span></div>
+            <div><strong>0</strong><span>Following</span></div>
+            <div><strong>0</strong><span>Friends</span></div>
+          </div>
+          <div class="profile-layout">
+            <div class="creator-panel">
+              <div class="creator-toolbar">
+                <h3>3D Character Creator</h3>
+                <button id="rotateCreatorButton" type="button">Rotate</button>
+              </div>
+              <canvas id="profileCreatorCanvas" aria-label="3D profile character creator"></canvas>
+              <div class="creator-options">
+                <button data-creator-color="gold" type="button">Gold Armor</button>
+                <button data-creator-color="crimson" type="button">Crimson Cape</button>
+                <button data-creator-color="emerald" type="button">Emerald Banner</button>
+              </div>
+            </div>
+            <div class="profile-panels">
+              <section>
+                <h3>Achievements</h3>
+                <div id="profileAchievements" class="badge-grid"></div>
+              </section>
+              <section>
+                <h3>Easter Egg Inventory</h3>
+                <div id="easterEggInventory" class="badge-grid"></div>
+              </section>
+              <section>
+                <h3>Profile Settings</h3>
+                <div class="profile-setting-list">
+                  <label><input type="checkbox" checked /> Show level badge</label>
+                  <label><input type="checkbox" /> Private match history</label>
+                  <label><input type="checkbox" checked /> Allow friend requests</label>
+                </div>
+              </section>
+            </div>
           </div>
         </div>
       </section>
@@ -323,6 +381,44 @@
       </section>
     </div>
 
+    <aside id="hamburgerDrawer" class="royal-drawer" hidden>
+      <button id="drawerClose" class="red-x" type="button" aria-label="Close menu">X</button>
+      <h2>Royal Menu</h2>
+      <button data-drawer-action="settings" type="button">Settings</button>
+      <button data-drawer-action="music" type="button">Music</button>
+      <button data-drawer-action="shop" type="button">Shop</button>
+      <button data-drawer-action="themes" type="button">Themes</button>
+    </aside>
+
+    <section id="modalBackdrop" class="modal-backdrop" hidden>
+      <div class="royal-modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <button id="modalClose" class="red-x" type="button" aria-label="Close">X</button>
+        <h2 id="modalTitle">4Kingsmen</h2>
+        <div id="modalBody" class="modal-body"></div>
+      </div>
+    </section>
+
+    <section id="musicDrawer" class="music-drawer" hidden>
+      <button id="musicClose" class="red-x" type="button" aria-label="Close music">X</button>
+      <h2>Royal Playlist</h2>
+      <div class="spotify-placeholder">Spotify playlist placeholder - add your playlist URL to embed it here.</div>
+    </section>
+
+    <section id="tokenWidget" class="token-widget">
+      <button id="tokenToggle" type="button">Tokens</button>
+      <div id="tokenPanel" class="corner-dropup" hidden>
+        <button class="red-x mini-close" data-close-panel="tokenPanel" type="button" aria-label="Close tokens">X</button>
+        <strong>Token Wager</strong>
+        <div class="token-options">
+          <button type="button">10</button>
+          <button type="button">25</button>
+          <button type="button">50</button>
+          <button type="button">100</button>
+          <button type="button">250</button>
+        </div>
+      </div>
+    </section>
+
     <main class="app-shell">
       <section class="topbar">
         <div>
@@ -407,13 +503,13 @@
             </label>
             <label>
               Zoom
-              <input id="fieldScale" type="range" min="35" max="160" value="100" />
+              <input id="fieldScale" type="range" min="90" max="180" value="125" />
             </label>
             <label class="checkbox-control">
               <input id="coordinateToggle" type="checkbox" checked />
               Coordinates
             </label>
-            <button id="fitBoardButton" type="button">Fit Board</button>
+            <button id="fitBoardButton" type="button">Focus Crown</button>
             <button id="resetFieldButton" type="button">Reset</button>
           </div>
           <div class="canvas-hud">
@@ -452,10 +548,16 @@
       <div id="chatPanel" class="chat-panel" hidden>
         <div class="chat-header">
           <strong>4Kingsmen Guide</strong>
-          <button id="chatClose" type="button">Close</button>
+          <button id="chatClose" class="red-x" type="button" aria-label="Close chat">X</button>
+        </div>
+        <div class="chat-tabs">
+          <button class="active" data-chat-topic="rules" type="button">Rules</button>
+          <button data-chat-topic="tutorial" type="button">Tutorial</button>
+          <button data-chat-topic="shop" type="button">Shop</button>
+          <button data-chat-topic="account" type="button">Account</button>
         </div>
         <div id="chatMessages" class="chat-messages">
-          <div class="chat-message bot">Welcome. Ask in any language about movement, fog, treasure, mines, AI levels, or how to win. You can also attach screenshots, screen recordings, audio, or use voice input.</div>
+          <div class="chat-message bot">Welcome to the royal guide. Ask about rules, movement, fog, treasures, AI levels, profile unlocks, shop items, or account features. Attach screenshots, recordings, or use voice input when needed.</div>
         </div>
         <div class="chat-tools">
           <label>

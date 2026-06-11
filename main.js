@@ -76,7 +76,7 @@ const SETTINGS = [
   { id: "animationSpeed", label: "Animation Speed", description: "Adjust movement and action animation speed.", type: "select", default: "normal", options: [["slow", "Slow"], ["normal", "Normal"], ["fast", "Fast"]] },
   { id: "aiDelay", label: "AI Thinking Delay", description: "Delay before AI actions resolve.", type: "select", default: "normal", options: [["short", "Short"], ["normal", "Normal"], ["long", "Long"]] },
   { id: "highContrast", label: "High Contrast", description: "Brighten territory and fog readability.", type: "checkbox", default: false },
-  { id: "autoFitBoard", label: "Auto Fit Board", description: "Fit the board when starting a match.", type: "checkbox", default: true },
+  { id: "autoFitBoard", label: "Auto Focus Crown", description: "Start focused near the active crown instead of showing the full map.", type: "checkbox", default: true },
   { id: "showMoveTrails", label: "Move Trails", description: "Show stronger path streaks while units move.", type: "checkbox", default: true },
   { id: "turnTimer", label: "Turn Timer", description: "Enable the 20-second battle timer.", type: "checkbox", default: true },
   { id: "reducedMotion", label: "Reduced Motion", description: "Shorten nonessential animation effects.", type: "checkbox", default: false },
@@ -122,6 +122,52 @@ const IMAGE_ASSETS = {
     "./images/theme.webp",
   ],
 };
+const COIN_PACKS = [
+  { id: "coins100", coins: 100, price: "$0.99" },
+  { id: "coins550", coins: 550, price: "$4.99" },
+  { id: "coins1200", coins: 1200, price: "$9.99" },
+  { id: "coins2600", coins: 2600, price: "$19.99" },
+  { id: "coins7000", coins: 7000, price: "$49.99" },
+];
+const THEME_MARKET = [
+  { id: "standardCastle", name: "Standard Castle", cost: 0, type: "main menu", palette: "standard" },
+  { id: "royalParchment", name: "Royal Parchment", cost: 0, type: "profile", palette: "legends" },
+  { id: "forestKeep", name: "Forest Keep", cost: 0, type: "main menu", palette: "wilderness" },
+  { id: "crimsonCourt", name: "Crimson Court", cost: 100, type: "profile", palette: "stage" },
+  { id: "sapphireCitadel", name: "Sapphire Citadel", cost: 200, type: "main menu", palette: "galactic" },
+  { id: "emeraldBanner", name: "Emerald Banner", cost: 400, type: "profile", palette: "world" },
+  { id: "obsidianThrone", name: "Obsidian Throne", cost: 800, type: "main menu", palette: "cyber" },
+  { id: "goldenEmpire", name: "Golden Empire", cost: 1600, type: "profile", palette: "arena" },
+  { id: "frostKingdom", name: "Frost Kingdom", cost: 3200, type: "main menu", palette: "standard" },
+  { id: "mythicRealm", name: "Mythic Realm", cost: 6400, type: "profile", palette: "mythic" },
+];
+const ACHIEVEMENTS = [
+  { id: "firstCrown", name: "First Crown", description: "Win a match." },
+  { id: "treasureRunner", name: "Treasure Runner", description: "Return a rival treasure." },
+  { id: "fogBreaker", name: "Fog Breaker", description: "Reveal 100 hidden tiles." },
+  { id: "mineLord", name: "Mine Lord", description: "Build 10 mines." },
+  { id: "worldClass", name: "World-Class Heir", description: "Beat World-Class AI." },
+  { id: "auctionHouse", name: "Auction House", description: "Win an auction." },
+];
+const EASTER_ITEMS = [
+  { id: "hiddenCrown", name: "Hidden Crown", description: "A secret profile relic." },
+  { id: "royalKey", name: "Royal Key", description: "Unlocks a future chamber." },
+  { id: "silverScroll", name: "Silver Scroll", description: "Contains an old kingdom hint." },
+];
+const AUCTION_LISTINGS = [
+  { id: "a1", item: "Founder Banner", rarity: "Legendary", bid: 320, buyout: 900, seller: "System", ends: "02:14:09" },
+  { id: "a2", item: "Crimson Crown Frame", rarity: "Epic", bid: 180, buyout: 520, seller: "System", ends: "05:48:31" },
+  { id: "a3", item: "Ancient Mine Seal", rarity: "Rare", bid: 75, buyout: 240, seller: "System", ends: "11:03:18" },
+];
+const LEADERBOARD_ROWS = [
+  { rank: 1, name: "Cloud sync required", elo: 0, wins: 0 },
+  { rank: 2, name: "Local Guest", elo: 0, wins: 0 },
+  { rank: 3, name: "AI Challenger", elo: 0, wins: 0 },
+];
+const BACKEND_CONFIG = {
+  firebaseConfigured: Boolean(window.FOUR_KINGSMEN_FIREBASE_CONFIG),
+  stripeConfigured: Boolean(window.FOUR_KINGSMEN_STRIPE_KEY),
+};
 const state = {
   phase: "setup",
   screen: "mainMenu",
@@ -142,6 +188,15 @@ const state = {
   log: [],
   board: { width: 16, height: 16, safe: { x: 6, y: 6, size: SAFE_SIZE } },
   territories: [],
+  ui: {
+    lastSort: null,
+    sortClicks: { default: 0, use: 0, name: 0, color: 0 },
+    previousTileOrder: null,
+    reels: 3,
+    creatorColor: "gold",
+    creatorRotating: false,
+  },
+  profile: loadProfile(),
   settings: {
     mode: "single",
     tutorial: false,
@@ -169,6 +224,29 @@ const els = {
   cornerProfile: document.querySelector("#cornerProfileButton"),
   cornerMenu: document.querySelector("#cornerMenuButton"),
   miniSlotText: document.querySelector("#miniSlotText"),
+  hamburgerDrawer: document.querySelector("#hamburgerDrawer"),
+  drawerClose: document.querySelector("#drawerClose"),
+  modalBackdrop: document.querySelector("#modalBackdrop"),
+  modalTitle: document.querySelector("#modalTitle"),
+  modalBody: document.querySelector("#modalBody"),
+  modalClose: document.querySelector("#modalClose"),
+  musicDrawer: document.querySelector("#musicDrawer"),
+  musicClose: document.querySelector("#musicClose"),
+  tokenToggle: document.querySelector("#tokenToggle"),
+  tokenPanel: document.querySelector("#tokenPanel"),
+  reelsToggle: document.querySelector("#reelsToggle"),
+  reelsPanel: document.querySelector("#reelsPanel"),
+  slotLever: document.querySelector("#slotLever"),
+  tileDropdown: document.querySelector("#tileDropdown"),
+  profileCoins: document.querySelector("#profileCoins"),
+  profileLevelFill: document.querySelector("#profileLevelFill"),
+  profileLevelText: document.querySelector("#profileLevelText"),
+  profileAchievements: document.querySelector("#profileAchievements"),
+  easterEggInventory: document.querySelector("#easterEggInventory"),
+  googleLogin: document.querySelector("#googleLoginButton"),
+  syncProfile: document.querySelector("#syncProfileButton"),
+  profileCreatorCanvas: document.querySelector("#profileCreatorCanvas"),
+  rotateCreator: document.querySelector("#rotateCreatorButton"),
   menuOverlay: document.querySelector("#menuOverlay"),
   mainMenu: document.querySelector("#mainMenu"),
   singlePlayerMenu: document.querySelector("#singlePlayerMenu"),
@@ -245,6 +323,9 @@ const els = {
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({ canvas: els.canvas, antialias: true });
+const creatorRenderer = els.profileCreatorCanvas ? new THREE.WebGLRenderer({ canvas: els.profileCreatorCanvas, antialias: true, alpha: true }) : null;
+const creatorScene = new THREE.Scene();
+const creatorCamera = new THREE.PerspectiveCamera(36, 1, 0.1, 100);
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
 const loader = new GLTFLoader();
@@ -261,6 +342,7 @@ let fogRoot = new THREE.Group();
 let timerId = null;
 const animations = [];
 let dragState = null;
+let creatorAvatar = null;
 
 scene.background = new THREE.Color(0x0c0f0e);
 scene.add(new THREE.AmbientLight(0xffffff, 1.55));
@@ -269,6 +351,12 @@ sun.position.set(10, 18, 8);
 scene.add(sun);
 fieldRoot.add(boardGroup, fogRoot, labelRoot, effectRoot, modelRoot, animationRoot);
 scene.add(fieldRoot);
+creatorScene.add(new THREE.AmbientLight(0xffffff, 1.8));
+const creatorLight = new THREE.DirectionalLight(0xffffff, 2.1);
+creatorLight.position.set(3, 5, 4);
+creatorScene.add(creatorLight);
+creatorCamera.position.set(0, 1.35, 6);
+creatorCamera.lookAt(0, 1.1, 0);
 
 function setupRenderer() {
   const rect = els.canvas.getBoundingClientRect();
@@ -276,7 +364,18 @@ function setupRenderer() {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   camera.aspect = rect.width / rect.height;
   camera.updateProjectionMatrix();
-  fitCameraToBoard();
+  focusActiveView();
+  setupCreatorRenderer();
+}
+
+function setupCreatorRenderer() {
+  if (!creatorRenderer || !els.profileCreatorCanvas) return;
+  const rect = els.profileCreatorCanvas.getBoundingClientRect();
+  if (!rect.width || !rect.height) return;
+  creatorRenderer.setSize(rect.width, rect.height, false);
+  creatorRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  creatorCamera.aspect = rect.width / rect.height;
+  creatorCamera.updateProjectionMatrix();
 }
 
 async function applyImageAssets() {
@@ -319,7 +418,9 @@ function showMenu(screenId) {
   document.querySelectorAll(".menu-screen").forEach((screen) => {
     screen.classList.toggle("active", screen.id === screenId);
   });
+  els.tileDropdown.hidden = true;
   refreshPresetSummary();
+  if (screenId === "profileMenu") setTimeout(setupCreatorRenderer, 0);
 }
 
 function closeMenu() {
@@ -449,6 +550,108 @@ function saveProgression() {
   localStorage.setItem("fourKingsmenProgression", JSON.stringify(state.settings.progression));
 }
 
+function loadProfile() {
+  try {
+    const saved = JSON.parse(localStorage.getItem("fourKingsmenProfile") || "null");
+    if (saved) {
+      return {
+        level: saved.level ?? 1,
+        xp: saved.xp ?? 0,
+        coins: saved.coins ?? 0,
+        ownedThemes: saved.ownedThemes ?? THEME_MARKET.filter((theme) => theme.cost === 0).map((theme) => theme.id),
+        achievements: saved.achievements ?? ["firstCrown"],
+        easterItems: saved.easterItems ?? ["hiddenCrown"],
+        signedIn: false,
+      };
+    }
+  } catch {
+    // Ignore corrupt local profile.
+  }
+  return {
+    level: 1,
+    xp: 0,
+    coins: 0,
+    ownedThemes: THEME_MARKET.filter((theme) => theme.cost === 0).map((theme) => theme.id),
+    achievements: ["firstCrown"],
+    easterItems: ["hiddenCrown"],
+    signedIn: false,
+  };
+}
+
+function saveProfile() {
+  localStorage.setItem("fourKingsmenProfile", JSON.stringify({
+    level: state.profile.level,
+    xp: state.profile.xp,
+    coins: state.profile.coins,
+    ownedThemes: state.profile.ownedThemes,
+    achievements: state.profile.achievements,
+    easterItems: state.profile.easterItems,
+  }));
+}
+
+function renderProfile() {
+  if (els.profileCoins) els.profileCoins.textContent = state.profile.coins;
+  const xpNeeded = 500 * state.profile.level;
+  const pct = Math.max(0, Math.min(100, Math.round((state.profile.xp / xpNeeded) * 100)));
+  if (els.profileLevelFill) els.profileLevelFill.style.width = `${pct}%`;
+  if (els.profileLevelText) els.profileLevelText.textContent = `Level ${state.profile.level} - ${state.profile.xp} / ${xpNeeded} XP`;
+  if (els.profileAchievements) {
+    els.profileAchievements.innerHTML = ACHIEVEMENTS.map((achievement) => {
+      const unlocked = state.profile.achievements.includes(achievement.id);
+      return `<div class="profile-badge-item"><strong>${unlocked ? "Unlocked" : "Locked"}: ${achievement.name}</strong><span>${achievement.description}</span></div>`;
+    }).join("");
+  }
+  if (els.easterEggInventory) {
+    els.easterEggInventory.innerHTML = EASTER_ITEMS.map((item) => {
+      const owned = state.profile.easterItems.includes(item.id);
+      return `<div class="profile-badge-item"><strong>${owned ? item.name : "Hidden Item"}</strong><span>${owned ? item.description : "Find this easter egg to reveal it."}</span></div>`;
+    }).join("");
+  }
+}
+
+function initCreatorAvatar() {
+  if (!creatorRenderer || creatorAvatar) return;
+  creatorAvatar = new THREE.Group();
+  const armor = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.58, 0.72, 1.28, 16),
+    new THREE.MeshStandardMaterial({ color: 0xd7a842, metalness: 0.45, roughness: 0.42 }),
+  );
+  armor.position.y = 0.85;
+  const head = new THREE.Mesh(
+    new THREE.SphereGeometry(0.36, 20, 20),
+    new THREE.MeshStandardMaterial({ color: 0xd9b38c, roughness: 0.55 }),
+  );
+  head.position.y = 1.7;
+  const crown = new THREE.Mesh(
+    new THREE.ConeGeometry(0.42, 0.32, 5),
+    new THREE.MeshStandardMaterial({ color: 0xf1d681, metalness: 0.7, roughness: 0.28 }),
+  );
+  crown.position.y = 2.12;
+  const cape = new THREE.Mesh(
+    new THREE.BoxGeometry(1.02, 1.16, 0.08),
+    new THREE.MeshStandardMaterial({ color: 0x731919, roughness: 0.65 }),
+  );
+  cape.position.set(0, 0.85, 0.48);
+  cape.name = "cape";
+  creatorAvatar.add(cape, armor, head, crown);
+  creatorScene.add(creatorAvatar);
+  updateCreatorColor();
+}
+
+function updateCreatorColor() {
+  if (!creatorAvatar) return;
+  const armor = creatorAvatar.children[1];
+  const cape = creatorAvatar.getObjectByName("cape");
+  const colors = {
+    gold: { armor: 0xd7a842, cape: 0x731919 },
+    crimson: { armor: 0x8d1433, cape: 0xd45f5f },
+    emerald: { armor: 0x55b176, cape: 0x126148 },
+  };
+  const selected = colors[state.ui.creatorColor] ?? colors.gold;
+  armor.material.color.setHex(selected.armor);
+  cape.material.color.setHex(selected.cape);
+}
+
 function isAiLevelUnlocked(level) {
   return state.settings.progression.unlocked.includes(level);
 }
@@ -501,6 +704,230 @@ function applySettingEffects() {
   drawCoordinateLabels();
   drawCloudFog();
   if (state.players.length) updateVisualState();
+}
+
+function openModal(title, html) {
+  els.modalTitle.textContent = title;
+  els.modalBody.innerHTML = html;
+  els.modalBackdrop.hidden = false;
+}
+
+function closeModal() {
+  els.modalBackdrop.hidden = true;
+  els.modalBody.innerHTML = "";
+}
+
+function requireLogin(action) {
+  if (state.profile.signedIn) return true;
+  openModal("Google Login Required", `
+    <p>${action} requires Google login so purchases, friends, stats, and unlocks can be attached to your account.</p>
+    <button id="modalLoginButton" class="primary-menu-action" type="button">Sign in with Google</button>
+    <p class="advanced-note">Firebase is not configured yet. Add window.FOUR_KINGSMEN_FIREBASE_CONFIG and deploy auth to enable real login.</p>
+  `);
+  document.querySelector("#modalLoginButton")?.addEventListener("click", simulateGoogleLogin);
+  return false;
+}
+
+function simulateGoogleLogin() {
+  if (!BACKEND_CONFIG.firebaseConfigured) {
+    addLog("Firebase config missing. Google login is gated for deployment.");
+    openModal("Backend Not Connected", "<p>Google login is ready for Firebase wiring, but this static build does not include your Firebase project config yet.</p>");
+    return;
+  }
+  state.profile.signedIn = true;
+  addLog("Google login connected.");
+  closeModal();
+}
+
+function openShopModal() {
+  const cards = COIN_PACKS.map((pack) => `
+    <div class="shop-card">
+      <strong>${pack.coins} Coins</strong>
+      <span class="price-pill">${pack.price}</span>
+      <button data-coin-pack="${pack.id}" type="button">Buy Coins</button>
+    </div>
+  `).join("");
+  openModal("Royal Coin Shop", `
+    <p>Coin purchases use Stripe Checkout after Google login. Test mode requires deployed Firebase Functions.</p>
+    <div class="shop-grid">${cards}</div>
+  `);
+  document.querySelectorAll("[data-coin-pack]").forEach((button) => {
+    button.addEventListener("click", () => startCoinCheckout(button.dataset.coinPack));
+  });
+}
+
+function startCoinCheckout(packId) {
+  const pack = COIN_PACKS.find((item) => item.id === packId);
+  if (!pack || !requireLogin("Buying coins")) return;
+  if (!BACKEND_CONFIG.stripeConfigured) {
+    openModal("Stripe Checkout Not Connected", `<p>${pack.coins} coins for ${pack.price} is configured in the UI. Add Stripe publishable key and a Firebase Checkout Function to process real purchases.</p>`);
+    return;
+  }
+  addLog(`Starting Stripe checkout for ${pack.coins} coins.`);
+}
+
+function openThemesModal() {
+  const cards = THEME_MARKET.map((theme) => {
+    const owned = state.profile.ownedThemes.includes(theme.id);
+    return `
+      <div class="theme-card ${owned ? "" : "locked"}">
+        <strong>${theme.name}</strong>
+        <span>${theme.type}</span>
+        <span class="price-pill">${theme.cost ? `${theme.cost} coins` : "Free"}</span>
+        <button data-theme-buy="${theme.id}" type="button">${owned ? "Apply" : "Unlock"}</button>
+      </div>
+    `;
+  }).join("");
+  openModal("Kingdom Themes", `<p>Main menu and profile themes. The first three are free; paid themes use coins.</p><div class="theme-grid">${cards}</div>`);
+  document.querySelectorAll("[data-theme-buy]").forEach((button) => {
+    button.addEventListener("click", () => buyOrApplyTheme(button.dataset.themeBuy));
+  });
+}
+
+function buyOrApplyTheme(themeId) {
+  const theme = THEME_MARKET.find((item) => item.id === themeId);
+  if (!theme) return;
+  if (!state.profile.ownedThemes.includes(theme.id)) {
+    if (state.profile.coins < theme.cost) {
+      openModal("Not Enough Coins", `<p>${theme.name} costs ${theme.cost} coins. Open the shop to buy coins through Stripe Checkout after login.</p><button id="openShopFromTheme" type="button">Open Shop</button>`);
+      document.querySelector("#openShopFromTheme")?.addEventListener("click", openShopModal);
+      return;
+    }
+    state.profile.coins -= theme.cost;
+    state.profile.ownedThemes.push(theme.id);
+    saveProfile();
+  }
+  els.themeTier.value = theme.palette;
+  els.setupThemeTier.value = theme.palette;
+  drawBoard();
+  if (state.players.length) updateVisualState();
+  renderProfile();
+  openThemesModal();
+}
+
+function openAuctionsModal() {
+  const listings = AUCTION_LISTINGS.map((listing) => `
+    <div class="auction-card">
+      <strong>${listing.item}</strong>
+      <span>${listing.rarity} | Seller: ${listing.seller}</span>
+      <span>Current bid: ${listing.bid} coins | Buyout: ${listing.buyout} coins</span>
+      <span>Ends in ${listing.ends}</span>
+      <button data-auction-bid="${listing.id}" type="button">Bid</button>
+    </div>
+  `).join("");
+  openModal("Royal Auctions", `<p>Bids use coins and will be server-validated when Firebase Functions are deployed.</p><div class="auction-grid">${listings}</div>`);
+  document.querySelectorAll("[data-auction-bid]").forEach((button) => {
+    button.addEventListener("click", () => {
+      if (requireLogin("Auction bidding")) openModal("Auction Backend Required", "<p>Auction bidding needs Firebase Functions for authoritative bid validation before real coins can be spent.</p>");
+    });
+  });
+}
+
+function openLeaderboardModal() {
+  const rows = LEADERBOARD_ROWS.map((row) => `<div class="leaderboard-row"><strong>#${row.rank}</strong><span>${row.name}</span><span>${row.elo} ELO | ${row.wins} wins</span></div>`).join("");
+  openModal("Leaderboard", `<p>Real leaderboard stats sync from Firebase after login and completed match validation.</p><div class="leaderboard-list">${rows}</div>`);
+}
+
+function openAchievementsModal() {
+  const rows = ACHIEVEMENTS.map((item) => `<div class="achievement-row ${state.profile.achievements.includes(item.id) ? "" : "locked"}"><strong>${item.name}</strong><span>${item.description}</span></div>`).join("");
+  openModal("Achievements", `<div class="achievement-list">${rows}</div>`);
+}
+
+function openFaqModal() {
+  openModal("FAQ", `
+    <div class="faq-list">
+      <div class="faq-row"><strong>How do I win?</strong><span>Capture and return every rival treasure, or be the last surviving King.</span></div>
+      <div class="faq-row"><strong>Does losing treasure eliminate me?</strong><span>No. The capturer gains bonus tokens and income, but you stay in the match.</span></div>
+      <div class="faq-row"><strong>Are payments live?</strong><span>The UI is ready; Stripe requires Firebase Functions before real checkout is enabled.</span></div>
+    </div>
+  `);
+}
+
+function openTileDropdown(type) {
+  const content = {
+    variations: `
+      <h3>Variations</h3>
+      <div class="dropdown-grid">
+        <button data-player-preset="2" type="button">Duel of Crowns</button>
+        <button data-player-preset="3" type="button">Triad Siege</button>
+        <button data-player-preset="4" type="button">Four-Crown War</button>
+      </div>
+    `,
+    players: `
+      <h3>Players</h3>
+      <div class="dropdown-grid">
+        <button data-menu-target="profileMenu" type="button">My Profile</button>
+        <button data-player-preset="2" type="button">2 Players</button>
+        <button data-player-preset="3" type="button">3 Players</button>
+        <button data-player-preset="4" type="button">4 Players</button>
+      </div>
+    `,
+  };
+  els.tileDropdown.innerHTML = content[type] ?? "";
+  els.tileDropdown.hidden = !els.tileDropdown.innerHTML;
+  els.tileDropdown.querySelectorAll("[data-menu-target]").forEach((button) => {
+    button.addEventListener("click", () => showMenu(button.dataset.menuTarget));
+  });
+  els.tileDropdown.querySelectorAll("[data-player-preset]").forEach((button) => {
+    button.addEventListener("click", () => {
+      els.setupPlayerCount.value = button.dataset.playerPreset;
+      syncSetupControls();
+      showMenu("createGameMenu");
+    });
+  });
+}
+
+function handleTileAction(action) {
+  recordTileUse(action);
+  if (action === "live") {
+    applyPreset("official");
+    startConfiguredGame();
+  } else if (action === "shop") openShopModal();
+  else if (action === "auctions") openAuctionsModal();
+  else if (action === "variations") openTileDropdown("variations");
+  else if (action === "players") openTileDropdown("players");
+  else if (action === "singlePlayer") showMenu("singlePlayerMenu");
+  else if (action === "multiplayer") showMenu("multiplayerMenu");
+  else if (action === "campaign") showMenu("campaignMenu");
+  else if (action === "rules") showMenu("tutorialMenu");
+  else if (action === "themes") openThemesModal();
+  else if (action === "leaderboard") openLeaderboardModal();
+  else if (action === "achievements") openAchievementsModal();
+  else if (action === "profile") showMenu("profileMenu");
+  else if (action === "music") els.musicDrawer.hidden = false;
+  else if (action === "settings") showMenu("settingsMenu");
+  else if (action === "faq") openFaqModal();
+}
+
+function recordTileUse(action) {
+  const key = `fourKingsmenTileUse:${action}`;
+  localStorage.setItem(key, String(Number(localStorage.getItem(key) || "0") + 1));
+}
+
+function sortTiles(type, button) {
+  const grid = document.querySelector(".royal-tile-grid");
+  const tiles = Array.from(grid.querySelectorAll(".royal-tile"));
+  if (!state.ui.previousTileOrder) state.ui.previousTileOrder = tiles.map((tile) => tile.dataset.action);
+  state.ui.sortClicks[type] += 1;
+  document.querySelectorAll("[data-sort]").forEach((item) => item.classList.toggle("active", item === button));
+  button.classList.add("sort-pulse");
+  setTimeout(() => button.classList.remove("sort-pulse"), 260);
+  if (type === "default") {
+    const current = tiles.map((tile) => tile.dataset.action);
+    const defaultOrder = ["live", "shop", "auctions", "variations", "players", "singlePlayer", "multiplayer", "campaign", "rules", "themes", "leaderboard", "achievements", "profile", "music", "settings", "faq"];
+    const order = state.ui.sortClicks.default % 2 === 1 ? defaultOrder : state.ui.previousTileOrder ?? defaultOrder;
+    state.ui.previousTileOrder = current;
+    order.forEach((action) => grid.append(tiles.find((tile) => tile.dataset.action === action)));
+    return;
+  }
+  const odd = state.ui.sortClicks[type] % 2 === 1;
+  const sorted = [...tiles].sort((a, b) => {
+    if (type === "use") return (Number(b.dataset.useScore) - Number(a.dataset.useScore)) * (odd ? 1 : -1);
+    if (type === "name") return a.querySelector("strong").textContent.localeCompare(b.querySelector("strong").textContent) * (odd ? 1 : -1);
+    if (type === "color") return (Number(b.dataset.colorScore) - Number(a.dataset.colorScore)) * (odd ? 1 : -1);
+    return 0;
+  });
+  sorted.forEach((tile) => grid.append(tile));
 }
 
 function renderAbilityToggles() {
@@ -605,6 +1032,7 @@ function startCampaignLevel(level) {
 }
 
 function applyFieldTransform() {
+  state.field.scale = Math.max(0.9, Math.min(1.8, state.field.scale));
   fieldRoot.rotation.y = THREE.MathUtils.degToRad(state.field.rotation);
   fieldRoot.rotation.x = THREE.MathUtils.degToRad(state.field.tilt);
   fieldRoot.scale.setScalar(state.field.scale);
@@ -620,30 +1048,42 @@ function applyFieldTransform() {
 function resetFieldTransform() {
   state.field.rotation = 0;
   state.field.tilt = 0;
-  state.field.scale = 1;
+  state.field.scale = 1.25;
   state.field.panX = 0;
   state.field.panZ = 0;
   applyFieldTransform();
-  fitCameraToBoard();
+  focusActiveView();
 }
 
 function fitEntireBoard() {
-  state.field.scale = 0.55;
-  state.field.panX = 0;
-  state.field.panZ = 0;
-  applyFieldTransform();
-  fitCameraToBoard(1.22);
+  focusActiveView();
 }
 
-function fitCameraToBoard(padding = 1.38) {
+function focusActiveView() {
+  state.field.scale = Math.max(1.15, state.field.scale || 1.25);
+  const focus = selectedUnit() || ownedUnits(state.active).find((unit) => unit.type === "king") || ownedUnits(state.active)[0];
+  if (focus) {
+    const world = tileToWorld(focus.x, focus.y);
+    state.field.panX = -world.x * 0.12;
+    state.field.panZ = -world.z * 0.12;
+  } else {
+    state.field.panX = 0;
+    state.field.panZ = 0;
+  }
+  applyFieldTransform();
+  fitCameraToBoard(0.42);
+}
+
+function fitCameraToBoard(padding = 0.5) {
   if (!state.board?.width || !els.canvas.clientWidth || !els.canvas.clientHeight) return;
-  const boardWorld = Math.max(state.board.width, state.board.height) * TILE * padding;
+  const visibleTiles = Math.min(8, Math.max(4, state.grid || 6));
+  const boardWorld = visibleTiles * TILE * padding;
   const verticalFov = THREE.MathUtils.degToRad(camera.fov);
   const horizontalFov = 2 * Math.atan(Math.tan(verticalFov / 2) * camera.aspect);
   const distanceByHeight = boardWorld / (2 * Math.tan(verticalFov / 2));
   const distanceByWidth = boardWorld / (2 * Math.tan(horizontalFov / 2));
-  const distance = Math.max(distanceByHeight, distanceByWidth, 10);
-  camera.position.set(0, distance * 0.92, distance * 0.92);
+  const distance = Math.max(distanceByHeight, distanceByWidth, 4.8);
+  camera.position.set(0, distance * 1.12, distance * 0.92);
   camera.lookAt(0, 0, 0);
 }
 
@@ -1528,20 +1968,9 @@ function refreshUI() {
 
 function updateMiniSlot(player = activePlayer()) {
   if (!els.miniSlotText || !player) return;
-  if (state.phase === "complete") {
-    els.miniSlotText.textContent = "Match complete";
-    return;
-  }
-  if (state.settings.tutorial) {
-    els.miniSlotText.textContent = state.settings.tutorialPaused ? "Tutorial paused" : "AI demo in progress";
-    return;
-  }
-  if (state.phase === "setup") {
-    els.miniSlotText.textContent = `Deploy units in ${player.name} territory`;
-    return;
-  }
-  const income = 100 + treasureIncome(player.id) + mineIncome(player.id);
-  els.miniSlotText.textContent = `${player.name} turn: +${income} tokens next turn`;
+  els.miniSlotText.textContent = state.ui.reels;
+  const income = state.phase === "battle" ? 100 + treasureIncome(player.id) + mineIncome(player.id) : 0;
+  els.miniSlotText.title = state.phase === "battle" ? `${player.name} turn: +${income} tokens next turn` : "Choose 3 to 6 reels";
 }
 
 function unitAbilityAvailable(unit) {
@@ -2219,7 +2648,10 @@ function answerTutorialQuestion(question, language = "auto") {
   if (q.includes("pause")) return "In tutorial mode, use Pause Demo in the bottom HUD. It freezes AI turn progression until you resume.";
   if (q.includes("server") || q.includes("online")) return "Online multiplayer is not connected yet. It needs a WebSocket server with rooms, authoritative state, and reconnect support.";
   if (q.includes("unit") || q.includes("ability")) return "Each unit has a different role and animation. Use the Ability button after selecting a unit to trigger special effects like Seeker scans or Warden shields.";
-  return `I can answer questions about winning, treasure, fog, movement, mines, AI levels, units, pause, and online servers.${languageNote}`;
+  if (q.includes("shop") || q.includes("coin") || q.includes("theme")) return "Shop and paid themes are wired behind Google login and Stripe Checkout. This build shows the flow, but real purchases need Firebase Functions and Stripe keys.";
+  if (q.includes("profile") || q.includes("friend") || q.includes("follower") || q.includes("login")) return "Profile works locally as a guest. Google login is optional, but required for cloud stats, friends, followers, purchases, and leaderboard submissions.";
+  if (q.includes("auction")) return "Auctions show item rarity, bids, buyouts, sellers, and countdowns. Real bidding needs server validation before coins can be spent.";
+  return `I can answer questions about winning, treasure, fog, movement, mines, AI levels, units, shop, profile, auctions, pause, and online servers.${languageNote}`;
 }
 
 function handleChatFiles() {
@@ -2294,6 +2726,8 @@ function animate() {
   modelRoot.children.forEach((child, i) => {
     if (!child.userData.animating) child.rotation.y = Math.sin(time + i) * 0.05;
   });
+  if (creatorAvatar && state.ui.creatorRotating) creatorAvatar.rotation.y += 0.01;
+  if (creatorRenderer) creatorRenderer.render(creatorScene, creatorCamera);
   renderer.render(scene, camera);
 }
 
@@ -2335,14 +2769,19 @@ els.canvas.addEventListener("pointerup", (event) => {
 els.canvas.addEventListener("wheel", (event) => {
   if (state.field.mode !== "drag") return;
   event.preventDefault();
-  state.field.scale = Math.max(0.35, Math.min(1.6, state.field.scale + (event.deltaY < 0 ? 0.04 : -0.04)));
+  state.field.scale = Math.max(0.9, Math.min(1.8, state.field.scale + (event.deltaY < 0 ? 0.04 : -0.04)));
   applyFieldTransform();
 }, { passive: false });
 els.playNow.addEventListener("click", () => {
-  applyPreset("official");
-  startConfiguredGame();
+  handleTileAction("live");
 });
-els.singlePlayer.addEventListener("click", () => showMenu("singlePlayerMenu"));
+els.singlePlayer.addEventListener("click", () => handleTileAction("singlePlayer"));
+document.querySelectorAll(".royal-tile:not(#playNowButton):not(#singlePlayerButton)").forEach((button) => {
+  button.addEventListener("click", () => handleTileAction(button.dataset.action));
+});
+document.querySelectorAll("[data-sort]").forEach((button) => {
+  button.addEventListener("click", () => sortTiles(button.dataset.sort, button));
+});
 els.createGame.addEventListener("click", () => showMenu("createGameMenu"));
 els.quickDuel.addEventListener("click", () => {
   applyPreset("duel");
@@ -2382,7 +2821,61 @@ els.disableSpecialAbilities.addEventListener("click", setCoreRulesOnly);
 els.newGame.addEventListener("click", newGame);
 els.openMenu.addEventListener("click", () => showMenu("mainMenu"));
 els.cornerProfile.addEventListener("click", () => showMenu("profileMenu"));
-els.cornerMenu.addEventListener("click", () => showMenu("mainMenu"));
+els.cornerMenu.addEventListener("click", () => {
+  els.hamburgerDrawer.hidden = !els.hamburgerDrawer.hidden;
+});
+els.drawerClose.addEventListener("click", () => {
+  els.hamburgerDrawer.hidden = true;
+});
+document.querySelectorAll("[data-drawer-action]").forEach((button) => {
+  button.addEventListener("click", () => {
+    els.hamburgerDrawer.hidden = true;
+    handleTileAction(button.dataset.drawerAction);
+  });
+});
+els.modalClose.addEventListener("click", closeModal);
+els.modalBackdrop.addEventListener("click", (event) => {
+  if (event.target === els.modalBackdrop) closeModal();
+});
+els.musicClose.addEventListener("click", () => {
+  els.musicDrawer.hidden = true;
+});
+els.tokenToggle.addEventListener("click", () => {
+  els.tokenPanel.hidden = !els.tokenPanel.hidden;
+});
+els.reelsToggle.addEventListener("click", () => {
+  els.reelsPanel.hidden = !els.reelsPanel.hidden;
+});
+els.slotLever.addEventListener("click", () => {
+  els.slotLever.classList.add("pulled");
+  setTimeout(() => els.slotLever.classList.remove("pulled"), 260);
+  els.reelsPanel.hidden = !els.reelsPanel.hidden;
+});
+document.querySelectorAll("[data-close-panel]").forEach((button) => {
+  button.addEventListener("click", () => {
+    const panel = document.querySelector(`#${button.dataset.closePanel}`);
+    if (panel) panel.hidden = true;
+  });
+});
+document.querySelectorAll("[data-reels]").forEach((button) => {
+  button.addEventListener("click", () => {
+    state.ui.reels = Number(button.dataset.reels);
+    updateMiniSlot();
+    els.reelsPanel.hidden = true;
+  });
+});
+els.googleLogin.addEventListener("click", simulateGoogleLogin);
+els.syncProfile.addEventListener("click", () => requireLogin("Cloud stat sync"));
+els.rotateCreator.addEventListener("click", () => {
+  state.ui.creatorRotating = !state.ui.creatorRotating;
+  els.rotateCreator.textContent = state.ui.creatorRotating ? "Stop" : "Rotate";
+});
+document.querySelectorAll("[data-creator-color]").forEach((button) => {
+  button.addEventListener("click", () => {
+    state.ui.creatorColor = button.dataset.creatorColor;
+    updateCreatorColor();
+  });
+});
 els.themeTier.addEventListener("change", () => {
   els.setupThemeTier.value = els.themeTier.value;
   drawBoard();
@@ -2408,7 +2901,7 @@ els.fieldTilt.addEventListener("input", () => {
   applyFieldTransform();
 });
 els.fieldScale.addEventListener("input", () => {
-  state.field.scale = Number(els.fieldScale.value) / 100;
+  state.field.scale = Math.max(0.9, Math.min(1.8, Number(els.fieldScale.value) / 100));
   applyFieldTransform();
 });
 els.coordinateToggle.addEventListener("change", () => {
@@ -2435,6 +2928,18 @@ els.chatToggle.addEventListener("click", () => {
 els.chatClose.addEventListener("click", () => {
   els.chatPanel.hidden = true;
 });
+document.querySelectorAll("[data-chat-topic]").forEach((button) => {
+  button.addEventListener("click", () => {
+    document.querySelectorAll("[data-chat-topic]").forEach((item) => item.classList.toggle("active", item === button));
+    const topicPrompts = {
+      rules: "Rules help loaded. Ask about winning, movement, fog, mines, units, or treasure.",
+      tutorial: "Tutorial help loaded. Ask how the AI demo, pause button, or difficulty unlocks work.",
+      shop: "Shop help loaded. Ask about coins, paid themes, auctions, or Stripe checkout.",
+      account: "Account help loaded. Ask about Google login, profile stats, friends, followers, or leaderboard sync.",
+    };
+    addChatMessage(topicPrompts[button.dataset.chatTopic], "bot");
+  });
+});
 els.chatFileInput.addEventListener("change", handleChatFiles);
 els.voiceInput.addEventListener("click", startVoiceInput);
 els.chatForm.addEventListener("submit", (event) => {
@@ -2453,10 +2958,13 @@ renderAbilityToggles();
 renderAiCharacters();
 renderPlayerCharacters();
 renderSettings();
+renderProfile();
+initCreatorAvatar();
 applyPreset("official");
 setAiDifficulty(state.settings.ai.difficulty);
 applySettingEffects();
 applyFieldTransform();
+setupCreatorRenderer();
 showMenu("mainMenu");
 animate();
 timerId = setInterval(tick, 1000);
