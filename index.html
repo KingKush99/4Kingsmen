@@ -12,19 +12,43 @@
       <button id="cornerProfileButton" class="corner-button profile-corner" type="button" aria-label="Profile">C</button>
       <button id="cornerMenuButton" class="corner-button menu-corner" type="button" aria-label="Menu">&#9776;</button>
       <div id="miniSlot" class="mini-slot">
-        <button id="reelsToggle" class="reels-toggle" type="button">
-          <span>Reels</span>
-          <strong id="miniSlotText">3</strong>
+        <button id="miniSlotToggle" class="reels-toggle" type="button">
+          <span>Mini Slots</span>
+          <strong id="miniSlotText">3 Reels</strong>
         </button>
         <button id="slotLever" class="slot-lever" type="button" aria-label="Pull reels lever"><span></span></button>
         <div id="reelsPanel" class="corner-dropup reels-panel" hidden>
           <button class="red-x mini-close" data-close-panel="reelsPanel" type="button" aria-label="Close reels">X</button>
-          <strong>Reel Count</strong>
-          <div class="reel-options">
-            <button type="button" data-reels="3">3</button>
-            <button type="button" data-reels="4">4</button>
-            <button type="button" data-reels="5">5</button>
-            <button type="button" data-reels="6">6</button>
+          <div class="slot-display">
+            <span>Reels</span>
+            <strong id="slotReelDisplay">3</strong>
+            <small id="slotResultText">Ready to spin</small>
+          </div>
+          <div class="slot-modal-grid">
+            <div class="slot-wager">
+              <strong>Token Wager</strong>
+              <div class="token-options">
+                <button type="button" data-wager="10">10</button>
+                <button type="button" data-wager="25">25</button>
+                <button type="button" data-wager="50">50</button>
+                <button type="button" data-wager="100">100</button>
+                <button type="button" data-wager="250">250</button>
+              </div>
+            </div>
+            <div class="slot-center">
+              <button id="slotSpinButton" class="slot-spin-button" type="button">Spin</button>
+              <label class="auto-spin-toggle"><input id="autoSpinToggle" type="checkbox" /> Auto-spin</label>
+            </div>
+            <button id="slotLeverLarge" class="slot-lever slot-lever-large" type="button" aria-label="Pull lever"><span></span><i></i></button>
+            <div class="slot-reels">
+              <strong>Reel Count</strong>
+              <div class="reel-options">
+                <button type="button" data-reels="3">3</button>
+                <button type="button" data-reels="4">4</button>
+                <button type="button" data-reels="5">5</button>
+                <button type="button" data-reels="6">6</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -173,34 +197,52 @@
       </section>
 
       <section id="profileMenu" class="menu-screen setup-screen">
-        <div class="menu-header">
-          <button class="back-button" data-menu-target="mainMenu" type="button">Back</button>
+        <div class="menu-header profile-menu-header">
+          <button id="profileBackButton" class="back-button" type="button">Back</button>
           <div>
             <span>Profile</span>
             <h2>Commander Record</h2>
           </div>
+          <button id="profileCloseButton" class="red-x profile-close" type="button" aria-label="Close profile">X</button>
         </div>
         <div class="profile-command">
           <div class="profile-hero-panel">
             <div class="profile-identity">
-              <div class="profile-avatar-seal">C</div>
+              <div class="profile-avatar-wrap">
+                <div id="profileAvatarSeal" class="profile-avatar-seal">C</div>
+                <button id="editProfileImageButton" class="edit-avatar-button" type="button" aria-label="Edit profile image">Pencil</button>
+                <input id="profileImageInput" type="file" accept="image/*" hidden />
+              </div>
               <div>
                 <span>Guest Commander</span>
-                <h3>Connor of the Four Crowns</h3>
-                <div class="level-track"><span id="profileLevelFill"></span></div>
-                <small id="profileLevelText">Level 1 - 0 / 500 XP</small>
+                <h3 id="profileDisplayName">Connor of the Four Crowns</h3>
+                <small id="profileUsername">@fourcrowns</small>
+                <p id="profileBio">Classical kingdom strategist.</p>
               </div>
             </div>
             <div class="profile-actions">
+              <button id="profileSettingsButton" class="icon-settings-button" type="button" aria-label="Profile settings">Settings</button>
+              <button id="editProfileButton" type="button">Edit Profile</button>
               <button id="googleLoginButton" type="button">Sign in with Google</button>
               <button id="syncProfileButton" type="button">Sync Cloud Stats</button>
             </div>
           </div>
-          <div class="profile-stats-grid">
-            <div><strong id="profileCoins">0</strong><span>Coins</span></div>
-            <div><strong>0</strong><span>Followers</span></div>
-            <div><strong>0</strong><span>Following</span></div>
-            <div><strong>0</strong><span>Friends</span></div>
+          <div class="profile-social-row">
+            <details class="profile-social-menu">
+              <summary><strong>0</strong><span>Followers</span></summary>
+              <input data-social-search="followers" type="search" placeholder="Search followers..." />
+              <div id="followersList" class="social-list"></div>
+            </details>
+            <details class="profile-social-menu">
+              <summary><strong>0</strong><span>Following</span></summary>
+              <input data-social-search="following" type="search" placeholder="Search following..." />
+              <div id="followingList" class="social-list"></div>
+            </details>
+            <details class="profile-social-menu">
+              <summary><strong>0</strong><span>Friends</span></summary>
+              <input data-social-search="friends" type="search" placeholder="Search friends..." />
+              <div id="friendsList" class="social-list"></div>
+            </details>
           </div>
           <div class="profile-layout">
             <div class="creator-panel">
@@ -214,15 +256,15 @@
                 <button data-creator-color="crimson" type="button">Crimson Cape</button>
                 <button data-creator-color="emerald" type="button">Emerald Banner</button>
               </div>
+              <section class="profile-section">
+                <h3>Easter Egg Inventory</h3>
+                <div id="easterEggInventory" class="badge-grid"></div>
+              </section>
             </div>
             <div class="profile-panels">
               <section>
                 <h3>Achievements</h3>
                 <div id="profileAchievements" class="badge-grid"></div>
-              </section>
-              <section>
-                <h3>Easter Egg Inventory</h3>
-                <div id="easterEggInventory" class="badge-grid"></div>
               </section>
               <section>
                 <h3>Profile Settings</h3>
@@ -233,6 +275,10 @@
                 </div>
               </section>
             </div>
+          </div>
+          <div class="profile-level-footer">
+            <div class="level-track"><span id="profileLevelFill"></span></div>
+            <small id="profileLevelText">Level 1 - 0 / 500 XP</small>
           </div>
         </div>
       </section>
@@ -382,12 +428,13 @@
     </div>
 
     <aside id="hamburgerDrawer" class="royal-drawer" hidden>
-      <button id="drawerClose" class="red-x" type="button" aria-label="Close menu">X</button>
       <h2>Royal Menu</h2>
+      <button data-drawer-action="rules" type="button">Tutorial</button>
       <button data-drawer-action="settings" type="button">Settings</button>
       <button data-drawer-action="music" type="button">Music</button>
       <button data-drawer-action="shop" type="button">Shop</button>
       <button data-drawer-action="themes" type="button">Themes</button>
+      <button data-drawer-action="signin" class="drawer-signin" type="button">Sign In</button>
     </aside>
 
     <section id="modalBackdrop" class="modal-backdrop" hidden>
@@ -402,21 +449,6 @@
       <button id="musicClose" class="red-x" type="button" aria-label="Close music">X</button>
       <h2>Royal Playlist</h2>
       <div class="spotify-placeholder">Spotify playlist placeholder - add your playlist URL to embed it here.</div>
-    </section>
-
-    <section id="tokenWidget" class="token-widget">
-      <button id="tokenToggle" type="button">Tokens</button>
-      <div id="tokenPanel" class="corner-dropup" hidden>
-        <button class="red-x mini-close" data-close-panel="tokenPanel" type="button" aria-label="Close tokens">X</button>
-        <strong>Token Wager</strong>
-        <div class="token-options">
-          <button type="button">10</button>
-          <button type="button">25</button>
-          <button type="button">50</button>
-          <button type="button">100</button>
-          <button type="button">250</button>
-        </div>
-      </div>
     </section>
 
     <main class="app-shell">
@@ -544,17 +576,30 @@
     </main>
 
     <section id="chatWidget" class="chat-widget">
-      <button id="chatToggle" class="chat-toggle" type="button">?</button>
+      <button id="chatToggle" class="chat-toggle bot-toggle" type="button" aria-label="Open guide bot">Bot</button>
       <div id="chatPanel" class="chat-panel" hidden>
         <div class="chat-header">
+          <button id="languageToggle" class="language-toggle" type="button" aria-label="Choose language">Globe</button>
           <strong>4Kingsmen Guide</strong>
           <button id="chatClose" class="red-x" type="button" aria-label="Close chat">X</button>
+        </div>
+        <div id="languagePanel" class="language-panel" hidden>
+          <button data-lang-label="English" type="button">English</button>
+          <button data-lang-label="Spanish" type="button">Spanish</button>
+          <button data-lang-label="French" type="button">French</button>
+          <button data-lang-label="German" type="button">German</button>
+          <button data-lang-label="Portuguese" type="button">Portuguese</button>
+          <button data-lang-label="Chinese" type="button">Chinese</button>
+          <button data-lang-label="Japanese" type="button">Japanese</button>
+          <button data-lang-label="Hindi" type="button">Hindi</button>
+          <button data-lang-label="Arabic" type="button">Arabic</button>
+          <button data-lang-label="Russian" type="button">Russian</button>
         </div>
         <div class="chat-tabs">
           <button class="active" data-chat-topic="rules" type="button">Rules</button>
           <button data-chat-topic="tutorial" type="button">Tutorial</button>
           <button data-chat-topic="shop" type="button">Shop</button>
-          <button data-chat-topic="account" type="button">Account</button>
+          <button data-chat-topic="signin" type="button">Sign In</button>
         </div>
         <div id="chatMessages" class="chat-messages">
           <div class="chat-message bot">Welcome to the royal guide. Ask about rules, movement, fog, treasures, AI levels, profile unlocks, shop items, or account features. Attach screenshots, recordings, or use voice input when needed.</div>
@@ -574,7 +619,7 @@
             </select>
           </label>
           <label class="file-tool">
-            Attach
+            Upload image/video/audio
             <input id="chatFileInput" type="file" accept="image/*,video/*,audio/*" multiple />
           </label>
           <button id="voiceInputButton" type="button">Speak</button>

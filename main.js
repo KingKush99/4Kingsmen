@@ -164,6 +164,24 @@ const LEADERBOARD_ROWS = [
   { rank: 2, name: "Local Guest", elo: 0, wins: 0 },
   { rank: 3, name: "AI Challenger", elo: 0, wins: 0 },
 ];
+const SOCIAL_USERS = [
+  { id: "aria", name: "Aria Crownwright", username: "@aria" },
+  { id: "bram", name: "Bram Ironkeep", username: "@bram" },
+  { id: "celeste", name: "Celeste Goldvale", username: "@celeste" },
+  { id: "dorian", name: "Dorian Mistfall", username: "@dorian" },
+];
+const WELCOME_TRANSLATIONS = {
+  English: "Welcome to the royal guide. Ask about rules, movement, fog, treasures, AI levels, profile unlocks, shop items, or sign in.",
+  Spanish: "Bienvenido a la guia real. Pregunta sobre reglas, movimiento, niebla, tesoros, niveles de IA, perfil, tienda o inicio de sesion.",
+  French: "Bienvenue dans le guide royal. Posez des questions sur les regles, le mouvement, le brouillard, les tresors, l'IA, le profil, la boutique ou la connexion.",
+  German: "Willkommen beim Koenigsleitfaden. Frage nach Regeln, Bewegung, Nebel, Schaetzen, KI-Stufen, Profil, Shop oder Anmeldung.",
+  Portuguese: "Bem-vindo ao guia real. Pergunte sobre regras, movimento, nevoa, tesouros, IA, perfil, loja ou login.",
+  Chinese: "Welcome. Chinese guide mode selected for rules, movement, fog, treasure, profile, shop, or sign in.",
+  Japanese: "Welcome. Japanese guide mode selected for rules, movement, fog, treasure, profile, shop, or sign in.",
+  Hindi: "Welcome. Hindi guide mode selected for rules, movement, fog, treasure, profile, shop, or sign in.",
+  Arabic: "Welcome. Arabic guide mode selected for rules, movement, fog, treasure, profile, shop, or sign in.",
+  Russian: "Welcome. Russian guide mode selected for rules, movement, fog, treasure, profile, shop, or sign in.",
+};
 const BACKEND_CONFIG = {
   firebaseConfigured: Boolean(window.FOUR_KINGSMEN_FIREBASE_CONFIG),
   stripeConfigured: Boolean(window.FOUR_KINGSMEN_STRIPE_KEY),
@@ -193,8 +211,10 @@ const state = {
     sortClicks: { default: 0, use: 0, name: 0, color: 0 },
     previousTileOrder: null,
     reels: 3,
+    wager: 10,
     creatorColor: "gold",
     creatorRotating: false,
+    profileStack: [],
   },
   profile: loadProfile(),
   settings: {
@@ -224,6 +244,12 @@ const els = {
   cornerProfile: document.querySelector("#cornerProfileButton"),
   cornerMenu: document.querySelector("#cornerMenuButton"),
   miniSlotText: document.querySelector("#miniSlotText"),
+  miniSlotToggle: document.querySelector("#miniSlotToggle"),
+  slotReelDisplay: document.querySelector("#slotReelDisplay"),
+  slotResultText: document.querySelector("#slotResultText"),
+  slotSpin: document.querySelector("#slotSpinButton"),
+  autoSpin: document.querySelector("#autoSpinToggle"),
+  slotLeverLarge: document.querySelector("#slotLeverLarge"),
   hamburgerDrawer: document.querySelector("#hamburgerDrawer"),
   drawerClose: document.querySelector("#drawerClose"),
   modalBackdrop: document.querySelector("#modalBackdrop"),
@@ -232,9 +258,6 @@ const els = {
   modalClose: document.querySelector("#modalClose"),
   musicDrawer: document.querySelector("#musicDrawer"),
   musicClose: document.querySelector("#musicClose"),
-  tokenToggle: document.querySelector("#tokenToggle"),
-  tokenPanel: document.querySelector("#tokenPanel"),
-  reelsToggle: document.querySelector("#reelsToggle"),
   reelsPanel: document.querySelector("#reelsPanel"),
   slotLever: document.querySelector("#slotLever"),
   tileDropdown: document.querySelector("#tileDropdown"),
@@ -245,6 +268,19 @@ const els = {
   easterEggInventory: document.querySelector("#easterEggInventory"),
   googleLogin: document.querySelector("#googleLoginButton"),
   syncProfile: document.querySelector("#syncProfileButton"),
+  profileBack: document.querySelector("#profileBackButton"),
+  profileClose: document.querySelector("#profileCloseButton"),
+  editProfile: document.querySelector("#editProfileButton"),
+  editProfileImage: document.querySelector("#editProfileImageButton"),
+  profileImageInput: document.querySelector("#profileImageInput"),
+  profileAvatarSeal: document.querySelector("#profileAvatarSeal"),
+  profileDisplayName: document.querySelector("#profileDisplayName"),
+  profileUsername: document.querySelector("#profileUsername"),
+  profileBio: document.querySelector("#profileBio"),
+  profileSettings: document.querySelector("#profileSettingsButton"),
+  followersList: document.querySelector("#followersList"),
+  followingList: document.querySelector("#followingList"),
+  friendsList: document.querySelector("#friendsList"),
   profileCreatorCanvas: document.querySelector("#profileCreatorCanvas"),
   rotateCreator: document.querySelector("#rotateCreatorButton"),
   menuOverlay: document.querySelector("#menuOverlay"),
@@ -312,6 +348,8 @@ const els = {
   chatToggle: document.querySelector("#chatToggle"),
   chatPanel: document.querySelector("#chatPanel"),
   chatClose: document.querySelector("#chatClose"),
+  languageToggle: document.querySelector("#languageToggle"),
+  languagePanel: document.querySelector("#languagePanel"),
   chatMessages: document.querySelector("#chatMessages"),
   chatLanguage: document.querySelector("#chatLanguage"),
   chatFileInput: document.querySelector("#chatFileInput"),
@@ -418,6 +456,7 @@ function showMenu(screenId) {
   document.querySelectorAll(".menu-screen").forEach((screen) => {
     screen.classList.toggle("active", screen.id === screenId);
   });
+  document.body.classList.toggle("profile-open", screenId === "profileMenu");
   els.tileDropdown.hidden = true;
   refreshPresetSummary();
   if (screenId === "profileMenu") setTimeout(setupCreatorRenderer, 0);
@@ -425,6 +464,7 @@ function showMenu(screenId) {
 
 function closeMenu() {
   els.menuOverlay.classList.add("hidden");
+  document.body.classList.remove("profile-open");
 }
 
 function applyPreset(id) {
@@ -561,6 +601,11 @@ function loadProfile() {
         ownedThemes: saved.ownedThemes ?? THEME_MARKET.filter((theme) => theme.cost === 0).map((theme) => theme.id),
         achievements: saved.achievements ?? ["firstCrown"],
         easterItems: saved.easterItems ?? ["hiddenCrown"],
+        displayName: saved.displayName ?? "Connor of the Four Crowns",
+        username: saved.username ?? "fourcrowns",
+        bio: saved.bio ?? "Classical kingdom strategist.",
+        avatarImage: saved.avatarImage ?? "",
+        lastUsernameChange: saved.lastUsernameChange ?? 0,
         signedIn: false,
       };
     }
@@ -574,6 +619,11 @@ function loadProfile() {
     ownedThemes: THEME_MARKET.filter((theme) => theme.cost === 0).map((theme) => theme.id),
     achievements: ["firstCrown"],
     easterItems: ["hiddenCrown"],
+    displayName: "Connor of the Four Crowns",
+    username: "fourcrowns",
+    bio: "Classical kingdom strategist.",
+    avatarImage: "",
+    lastUsernameChange: 0,
     signedIn: false,
   };
 }
@@ -586,10 +636,22 @@ function saveProfile() {
     ownedThemes: state.profile.ownedThemes,
     achievements: state.profile.achievements,
     easterItems: state.profile.easterItems,
+    displayName: state.profile.displayName,
+    username: state.profile.username,
+    bio: state.profile.bio,
+    avatarImage: state.profile.avatarImage,
+    lastUsernameChange: state.profile.lastUsernameChange,
   }));
 }
 
 function renderProfile() {
+  if (els.profileDisplayName) els.profileDisplayName.textContent = state.profile.displayName;
+  if (els.profileUsername) els.profileUsername.textContent = `@${state.profile.username}`;
+  if (els.profileBio) els.profileBio.textContent = state.profile.bio;
+  if (els.profileAvatarSeal) {
+    els.profileAvatarSeal.textContent = state.profile.avatarImage ? "" : (state.profile.displayName[0] ?? "C").toUpperCase();
+    els.profileAvatarSeal.style.backgroundImage = state.profile.avatarImage ? `url("${state.profile.avatarImage}")` : "";
+  }
   if (els.profileCoins) els.profileCoins.textContent = state.profile.coins;
   const xpNeeded = 500 * state.profile.level;
   const pct = Math.max(0, Math.min(100, Math.round((state.profile.xp / xpNeeded) * 100)));
@@ -607,6 +669,119 @@ function renderProfile() {
       return `<div class="profile-badge-item"><strong>${owned ? item.name : "Hidden Item"}</strong><span>${owned ? item.description : "Find this easter egg to reveal it."}</span></div>`;
     }).join("");
   }
+  renderSocialLists();
+}
+
+function containsBlockedContent(text) {
+  return /\b(fuck|bitch|nigger|nigga|cunt|shit)\b/i.test(text);
+}
+
+function openEditProfileModal() {
+  openModal("Edit Profile", `
+    <label>Display name<input id="editDisplayNameInput" maxlength="64" value="${escapeHtml(state.profile.displayName)}" /></label>
+    <label>Username<input id="editUsernameInput" maxlength="64" value="${escapeHtml(state.profile.username)}" /></label>
+    <label>Bio<textarea id="editBioInput" maxlength="1000">${escapeHtml(state.profile.bio)}</textarea></label>
+    <p class="advanced-note">Display name and username are filtered for prohibited language. Username changes are limited to once per week.</p>
+    <button id="saveProfileEdits" class="primary-menu-action" type="button">Save Profile</button>
+  `);
+  document.querySelector("#saveProfileEdits")?.addEventListener("click", saveProfileEdits);
+}
+
+function escapeHtml(text) {
+  return String(text).replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" })[char]);
+}
+
+function saveProfileEdits() {
+  const displayName = document.querySelector("#editDisplayNameInput").value.trim().slice(0, 64);
+  const username = document.querySelector("#editUsernameInput").value.trim().replace(/[^a-z0-9_]/gi, "").slice(0, 64);
+  const bio = document.querySelector("#editBioInput").value.trim().slice(0, 1000);
+  if (!displayName || !username) {
+    openModal("Profile Error", "<p>Display name and username are required.</p>");
+    return;
+  }
+  if (containsBlockedContent(`${displayName} ${username} ${bio}`)) {
+    openModal("Profile Error", "<p>That profile text contains prohibited language. Choose a respectful name and bio.</p>");
+    return;
+  }
+  const oneWeek = 7 * 24 * 60 * 60 * 1000;
+  if (username !== state.profile.username && Date.now() - state.profile.lastUsernameChange < oneWeek) {
+    openModal("Username Locked", "<p>Usernames can only be changed once per week.</p>");
+    return;
+  }
+  if (username !== state.profile.username) state.profile.lastUsernameChange = Date.now();
+  state.profile.displayName = displayName;
+  state.profile.username = username;
+  state.profile.bio = bio;
+  saveProfile();
+  renderProfile();
+  closeModal();
+}
+
+function handleProfileImageUpload() {
+  const file = els.profileImageInput.files?.[0];
+  if (!file || !file.type.startsWith("image/")) return;
+  if (file.size > 2_000_000) {
+    openModal("Image Too Large", "<p>Use an image under 2 MB for the local prototype.</p>");
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = () => {
+    state.profile.avatarImage = String(reader.result);
+    saveProfile();
+    renderProfile();
+    openModal("Image Review Required", "<p>Your profile image is previewed locally. Production upload must run server-side moderation before it becomes public.</p>");
+  };
+  reader.readAsDataURL(file);
+}
+
+function renderSocialLists(filter = "") {
+  const groups = [
+    [els.followersList, SOCIAL_USERS],
+    [els.followingList, SOCIAL_USERS.slice().reverse()],
+    [els.friendsList, SOCIAL_USERS.slice(0, 3)],
+  ];
+  for (const [container, users] of groups) {
+    if (!container) continue;
+    container.innerHTML = users
+      .filter((user) => `${user.name} ${user.username}`.toLowerCase().includes(filter.toLowerCase()))
+      .map((user) => `<button data-social-user="${user.id}" type="button"><strong>${user.name}</strong><small>${user.username}</small></button>`)
+      .join("");
+  }
+  document.querySelectorAll("[data-social-user]").forEach((button) => {
+    button.addEventListener("click", () => visitProfile(button.dataset.socialUser));
+    button.addEventListener("contextmenu", (event) => {
+      event.preventDefault();
+      openSocialContext(button.dataset.socialUser, event.clientX, event.clientY);
+    });
+  });
+}
+
+function visitProfile(userId) {
+  state.ui.profileStack.push({ ...state.profile });
+  const user = SOCIAL_USERS.find((item) => item.id === userId);
+  if (!user) return;
+  state.profile.displayName = user.name;
+  state.profile.username = user.username.replace("@", "");
+  state.profile.bio = "Visiting another commander's public profile.";
+  state.profile.avatarImage = "";
+  renderProfile();
+  showMenu("profileMenu");
+}
+
+function openSocialContext(userId, x, y) {
+  document.querySelector(".social-context-menu")?.remove();
+  const user = SOCIAL_USERS.find((item) => item.id === userId);
+  const menu = document.createElement("div");
+  menu.className = "social-context-menu";
+  menu.style.left = `${x}px`;
+  menu.style.top = `${y}px`;
+  menu.innerHTML = `
+    <button type="button">Add Friend</button>
+    <button type="button">Send Message</button>
+    <button type="button">Visit Profile</button>
+  `;
+  menu.querySelectorAll("button")[2].addEventListener("click", () => visitProfile(user.id));
+  document.body.append(menu);
 }
 
 function initCreatorAvatar() {
@@ -1968,9 +2143,23 @@ function refreshUI() {
 
 function updateMiniSlot(player = activePlayer()) {
   if (!els.miniSlotText || !player) return;
-  els.miniSlotText.textContent = state.ui.reels;
+  els.miniSlotText.textContent = `${state.ui.reels} Reels`;
+  if (els.slotReelDisplay) els.slotReelDisplay.textContent = state.ui.reels;
   const income = state.phase === "battle" ? 100 + treasureIncome(player.id) + mineIncome(player.id) : 0;
   els.miniSlotText.title = state.phase === "battle" ? `${player.name} turn: +${income} tokens next turn` : "Choose 3 to 6 reels";
+}
+
+function spinMiniSlots() {
+  const won = Math.random() > 0.58;
+  const result = won ? `You won ${state.ui.wager * state.ui.reels} tokens` : `You lost ${state.ui.wager} tokens`;
+  if (els.slotResultText) els.slotResultText.textContent = result;
+  addLog(`Mini slots: ${result}.`);
+  els.slotLever?.classList.add("pulled");
+  els.slotLeverLarge?.classList.add("pulled");
+  setTimeout(() => {
+    els.slotLever?.classList.remove("pulled");
+    els.slotLeverLarge?.classList.remove("pulled");
+  }, 260);
 }
 
 function unitAbilityAvailable(unit) {
@@ -2824,13 +3013,14 @@ els.cornerProfile.addEventListener("click", () => showMenu("profileMenu"));
 els.cornerMenu.addEventListener("click", () => {
   els.hamburgerDrawer.hidden = !els.hamburgerDrawer.hidden;
 });
-els.drawerClose.addEventListener("click", () => {
+els.drawerClose?.addEventListener("click", () => {
   els.hamburgerDrawer.hidden = true;
 });
 document.querySelectorAll("[data-drawer-action]").forEach((button) => {
   button.addEventListener("click", () => {
     els.hamburgerDrawer.hidden = true;
-    handleTileAction(button.dataset.drawerAction);
+    if (button.dataset.drawerAction === "signin") simulateGoogleLogin();
+    else handleTileAction(button.dataset.drawerAction);
   });
 });
 els.modalClose.addEventListener("click", closeModal);
@@ -2840,16 +3030,19 @@ els.modalBackdrop.addEventListener("click", (event) => {
 els.musicClose.addEventListener("click", () => {
   els.musicDrawer.hidden = true;
 });
-els.tokenToggle.addEventListener("click", () => {
-  els.tokenPanel.hidden = !els.tokenPanel.hidden;
-});
-els.reelsToggle.addEventListener("click", () => {
+els.miniSlotToggle.addEventListener("click", () => {
   els.reelsPanel.hidden = !els.reelsPanel.hidden;
 });
 els.slotLever.addEventListener("click", () => {
-  els.slotLever.classList.add("pulled");
-  setTimeout(() => els.slotLever.classList.remove("pulled"), 260);
   els.reelsPanel.hidden = !els.reelsPanel.hidden;
+});
+els.slotLeverLarge.addEventListener("click", spinMiniSlots);
+els.slotSpin.addEventListener("click", spinMiniSlots);
+els.autoSpin.addEventListener("change", () => {
+  if (els.autoSpin.checked) {
+    spinMiniSlots();
+    els.autoSpin.checked = false;
+  }
 });
 document.querySelectorAll("[data-close-panel]").forEach((button) => {
   button.addEventListener("click", () => {
@@ -2860,12 +3053,35 @@ document.querySelectorAll("[data-close-panel]").forEach((button) => {
 document.querySelectorAll("[data-reels]").forEach((button) => {
   button.addEventListener("click", () => {
     state.ui.reels = Number(button.dataset.reels);
+    document.querySelectorAll("[data-reels]").forEach((item) => item.classList.toggle("active", item === button));
     updateMiniSlot();
-    els.reelsPanel.hidden = true;
+  });
+});
+document.querySelectorAll("[data-wager]").forEach((button) => {
+  button.addEventListener("click", () => {
+    state.ui.wager = Number(button.dataset.wager);
+    document.querySelectorAll("[data-wager]").forEach((item) => item.classList.toggle("active", item === button));
   });
 });
 els.googleLogin.addEventListener("click", simulateGoogleLogin);
 els.syncProfile.addEventListener("click", () => requireLogin("Cloud stat sync"));
+els.profileBack.addEventListener("click", () => {
+  const previous = state.ui.profileStack.pop();
+  if (previous) {
+    state.profile = previous;
+    renderProfile();
+  } else {
+    showMenu("mainMenu");
+  }
+});
+els.profileClose.addEventListener("click", () => showMenu("mainMenu"));
+els.editProfile.addEventListener("click", openEditProfileModal);
+els.profileSettings.addEventListener("click", () => openModal("Profile Settings", "<p>Profile visibility, requests, badges, and notification settings live here.</p>"));
+els.editProfileImage.addEventListener("click", () => els.profileImageInput.click());
+els.profileImageInput.addEventListener("change", handleProfileImageUpload);
+document.querySelectorAll("[data-social-search]").forEach((input) => {
+  input.addEventListener("input", () => renderSocialLists(input.value));
+});
 els.rotateCreator.addEventListener("click", () => {
   state.ui.creatorRotating = !state.ui.creatorRotating;
   els.rotateCreator.textContent = state.ui.creatorRotating ? "Stop" : "Rotate";
@@ -2928,6 +3144,15 @@ els.chatToggle.addEventListener("click", () => {
 els.chatClose.addEventListener("click", () => {
   els.chatPanel.hidden = true;
 });
+els.languageToggle.addEventListener("click", () => {
+  els.languagePanel.hidden = !els.languagePanel.hidden;
+});
+document.querySelectorAll("[data-lang-label]").forEach((button) => {
+  button.addEventListener("click", () => {
+    addChatMessage(WELCOME_TRANSLATIONS[button.dataset.langLabel] ?? WELCOME_TRANSLATIONS.English, "bot");
+    els.languagePanel.hidden = true;
+  });
+});
 document.querySelectorAll("[data-chat-topic]").forEach((button) => {
   button.addEventListener("click", () => {
     document.querySelectorAll("[data-chat-topic]").forEach((item) => item.classList.toggle("active", item === button));
@@ -2935,7 +3160,7 @@ document.querySelectorAll("[data-chat-topic]").forEach((button) => {
       rules: "Rules help loaded. Ask about winning, movement, fog, mines, units, or treasure.",
       tutorial: "Tutorial help loaded. Ask how the AI demo, pause button, or difficulty unlocks work.",
       shop: "Shop help loaded. Ask about coins, paid themes, auctions, or Stripe checkout.",
-      account: "Account help loaded. Ask about Google login, profile stats, friends, followers, or leaderboard sync.",
+      signin: "Sign-in help loaded. Google login is optional for play, but needed for cloud stats, friends, followers, purchases, and leaderboards.",
     };
     addChatMessage(topicPrompts[button.dataset.chatTopic], "bot");
   });
@@ -2951,6 +3176,11 @@ els.chatForm.addEventListener("submit", (event) => {
   els.chatInput.value = "";
 });
 window.addEventListener("resize", setupRenderer);
+window.addEventListener("click", (event) => {
+  if (!event.target.closest?.(".social-context-menu") && !event.target.closest?.("[data-social-user]")) {
+    document.querySelector(".social-context-menu")?.remove();
+  }
+});
 
 setupRenderer();
 applyImageAssets();
@@ -2960,6 +3190,8 @@ renderPlayerCharacters();
 renderSettings();
 renderProfile();
 initCreatorAvatar();
+document.querySelector('[data-wager="10"]')?.classList.add("active");
+document.querySelector('[data-reels="3"]')?.classList.add("active");
 applyPreset("official");
 setAiDifficulty(state.settings.ai.difficulty);
 applySettingEffects();
