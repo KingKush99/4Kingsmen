@@ -11,47 +11,46 @@
     <div class="corner-ui">
       <button id="cornerProfileButton" class="corner-button profile-corner" type="button" aria-label="Profile">C</button>
       <button id="cornerMenuButton" class="corner-button menu-corner" type="button" aria-label="Menu">&#9776;</button>
-      <div id="miniSlot" class="mini-slot">
-        <button id="miniSlotToggle" class="reels-toggle" type="button">
-          <span>Mini Slots</span>
-          <strong id="miniSlotText">3 Reels</strong>
-        </button>
-        <button id="slotLever" class="slot-lever" type="button" aria-label="Pull reels lever"><span></span></button>
+      <div id="miniSlot" class="mini-slot-shell">
+        <button id="miniSlotToggle" class="corner-button mini-slot-corner" type="button" aria-label="Mini slots">777</button>
         <div id="reelsPanel" class="corner-dropup reels-panel" hidden>
           <button class="red-x mini-close" data-close-panel="reelsPanel" type="button" aria-label="Close reels">X</button>
           <div class="slot-display">
-            <span>Reels</span>
-            <strong id="slotReelDisplay">3</strong>
+            <div id="slotEmojiDisplay" class="slot-emoji-display">
+              <span>Crown</span><span>Gem</span><span>Sword</span>
+            </div>
             <small id="slotResultText">Ready to spin</small>
           </div>
-          <div class="slot-modal-grid">
-            <div class="slot-wager">
-              <strong>Token Wager</strong>
-              <div class="token-options">
-                <button type="button" data-wager="10">10</button>
-                <button type="button" data-wager="25">25</button>
-                <button type="button" data-wager="50">50</button>
-                <button type="button" data-wager="100">100</button>
-                <button type="button" data-wager="250">250</button>
-              </div>
+          <div class="slot-machine-body">
+            <div class="slot-controls-row">
+              <label>Token:
+                <select id="slotWagerSelect">
+                  <option value="10">10</option>
+                  <option value="25">25</option>
+                  <option value="50">50</option>
+                  <option value="100">100</option>
+                  <option value="250">250</option>
+                </select>
+              </label>
+              <label>Reel:
+                <select id="slotReelSelect">
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                  <option value="6">6</option>
+                </select>
+              </label>
             </div>
             <div class="slot-center">
               <button id="slotSpinButton" class="slot-spin-button" type="button">Spin</button>
               <label class="auto-spin-toggle"><input id="autoSpinToggle" type="checkbox" /> Auto-spin</label>
             </div>
             <button id="slotLeverLarge" class="slot-lever slot-lever-large" type="button" aria-label="Pull lever"><span></span><i></i></button>
-            <div class="slot-reels">
-              <strong>Reel Count</strong>
-              <div class="reel-options">
-                <button type="button" data-reels="3">3</button>
-                <button type="button" data-reels="4">4</button>
-                <button type="button" data-reels="5">5</button>
-                <button type="button" data-reels="6">6</button>
-              </div>
-            </div>
           </div>
         </div>
       </div>
+      <button id="liveChatButton" class="side-home-button live-side-button" type="button">Live Chat</button>
+      <button id="dmsButton" class="side-home-button dms-side-button" type="button">DMs</button>
     </div>
     <div id="menuOverlay" class="menu-overlay">
       <section id="mainMenu" class="menu-screen active">
@@ -210,7 +209,7 @@
             <div class="profile-identity">
               <div class="profile-avatar-wrap">
                 <div id="profileAvatarSeal" class="profile-avatar-seal">C</div>
-                <button id="editProfileImageButton" class="edit-avatar-button" type="button" aria-label="Edit profile image">Pencil</button>
+              <button id="editProfileImageButton" class="edit-avatar-button" type="button" aria-label="Edit profile">&#9998;</button>
                 <input id="profileImageInput" type="file" accept="image/*" hidden />
               </div>
               <div>
@@ -221,8 +220,7 @@
               </div>
             </div>
             <div class="profile-actions">
-              <button id="profileSettingsButton" class="icon-settings-button" type="button" aria-label="Profile settings">Settings</button>
-              <button id="editProfileButton" type="button">Edit Profile</button>
+              <button id="profileSettingsButton" class="icon-settings-button" type="button" aria-label="Profile settings">&#9881;</button>
               <button id="googleLoginButton" type="button">Sign in with Google</button>
               <button id="syncProfileButton" type="button">Sync Cloud Stats</button>
             </div>
@@ -248,13 +246,26 @@
             <div class="creator-panel">
               <div class="creator-toolbar">
                 <h3>3D Character Creator</h3>
-                <button id="rotateCreatorButton" type="button">Rotate</button>
+                <button id="rotateCreatorButton" type="button">Auto-rotate Off</button>
               </div>
               <canvas id="profileCreatorCanvas" aria-label="3D profile character creator"></canvas>
               <div class="creator-options">
-                <button data-creator-color="gold" type="button">Gold Armor</button>
-                <button data-creator-color="crimson" type="button">Crimson Cape</button>
-                <button data-creator-color="emerald" type="button">Emerald Banner</button>
+                <label>Eyes <input data-creator-part="eyes" type="color" value="#5c9bd8" /></label>
+                <label>Hair <input data-creator-part="hair" type="color" value="#2b1b10" /></label>
+                <label>Skin <input data-creator-part="skin" type="color" value="#d9b38c" /></label>
+                <label>Shirt <input data-creator-part="shirt" type="color" value="#d7a842" /></label>
+                <label>Pants <input data-creator-part="pants" type="color" value="#202722" /></label>
+                <label>Shoes <input data-creator-part="shoes" type="color" value="#1a1410" /></label>
+                <label>Height <input id="creatorHeight" type="range" min="80" max="130" value="100" /></label>
+                <label>Weight <input id="creatorWeight" type="range" min="80" max="140" value="100" /></label>
+                <label>Hairstyle <select data-creator-choice="hairstyle"></select></label>
+                <label>Body <select data-creator-choice="body"></select></label>
+                <label>Shirt Type <select data-creator-choice="shirt"></select></label>
+                <label>Pants Type <select data-creator-choice="pants"></select></label>
+                <label>Shoe Type <select data-creator-choice="shoes"></select></label>
+                <label>Eye Shape <select data-creator-choice="eyes"></select></label>
+                <label>Nose Shape <select data-creator-choice="nose"></select></label>
+                <label>Ear Shape <select data-creator-choice="ears"></select></label>
               </div>
               <section class="profile-section">
                 <h3>Easter Egg Inventory</h3>
@@ -576,58 +587,54 @@
     </main>
 
     <section id="chatWidget" class="chat-widget">
-      <button id="chatToggle" class="chat-toggle bot-toggle" type="button" aria-label="Open guide bot">Bot</button>
+      <button id="chatToggle" class="chat-toggle bot-toggle" type="button" aria-label="Open guide bot">&#129302;</button>
       <div id="chatPanel" class="chat-panel" hidden>
         <div class="chat-header">
-          <button id="languageToggle" class="language-toggle" type="button" aria-label="Choose language">Globe</button>
+          <button id="languageToggle" class="language-toggle" type="button" aria-label="Choose language">&#127760;</button>
           <strong>4Kingsmen Guide</strong>
           <button id="chatClose" class="red-x" type="button" aria-label="Close chat">X</button>
         </div>
         <div id="languagePanel" class="language-panel" hidden>
-          <button data-lang-label="English" type="button">English</button>
-          <button data-lang-label="Spanish" type="button">Spanish</button>
-          <button data-lang-label="French" type="button">French</button>
-          <button data-lang-label="German" type="button">German</button>
-          <button data-lang-label="Portuguese" type="button">Portuguese</button>
-          <button data-lang-label="Chinese" type="button">Chinese</button>
-          <button data-lang-label="Japanese" type="button">Japanese</button>
-          <button data-lang-label="Hindi" type="button">Hindi</button>
-          <button data-lang-label="Arabic" type="button">Arabic</button>
-          <button data-lang-label="Russian" type="button">Russian</button>
-        </div>
-        <div class="chat-tabs">
-          <button class="active" data-chat-topic="rules" type="button">Rules</button>
-          <button data-chat-topic="tutorial" type="button">Tutorial</button>
-          <button data-chat-topic="shop" type="button">Shop</button>
-          <button data-chat-topic="signin" type="button">Sign In</button>
+          <select id="chatLanguagePicker" aria-label="Chat language">
+            <option value="English">English</option>
+            <option value="Spanish">Spanish</option>
+            <option value="French">French</option>
+            <option value="German">German</option>
+            <option value="Portuguese">Portuguese</option>
+            <option value="Chinese">Chinese</option>
+            <option value="Japanese">Japanese</option>
+            <option value="Hindi">Hindi</option>
+            <option value="Arabic">Arabic</option>
+            <option value="Russian">Russian</option>
+          </select>
         </div>
         <div id="chatMessages" class="chat-messages">
           <div class="chat-message bot">Welcome to the royal guide. Ask about rules, movement, fog, treasures, AI levels, profile unlocks, shop items, or account features. Attach screenshots, recordings, or use voice input when needed.</div>
         </div>
         <div class="chat-tools">
-          <label>
-            Language
-            <select id="chatLanguage">
-              <option value="auto">Auto</option>
-              <option value="en-US">English</option>
-              <option value="es-ES">Espanol</option>
-              <option value="fr-FR">Francais</option>
-              <option value="de-DE">Deutsch</option>
-              <option value="pt-BR">Portugues</option>
-              <option value="zh-CN">Chinese</option>
-              <option value="ja-JP">Japanese</option>
-            </select>
-          </label>
           <label class="file-tool">
-            Upload image/video/audio
+            <span>&#128247;</span>
             <input id="chatFileInput" type="file" accept="image/*,video/*,audio/*" multiple />
           </label>
-          <button id="voiceInputButton" type="button">Speak</button>
+          <button id="voiceInputButton" type="button" aria-label="Speak">&#127908;</button>
+          <form id="chatForm" class="chat-form">
+            <input id="chatInput" type="text" placeholder="Ask about the game..." autocomplete="off" />
+            <button type="submit">Send</button>
+          </form>
         </div>
-        <form id="chatForm" class="chat-form">
-          <input id="chatInput" type="text" placeholder="Ask about the game..." autocomplete="off" />
-          <button type="submit">Ask</button>
-        </form>
+        <select id="chatLanguage" hidden>
+          <option value="auto">English</option>
+          <option value="en-US">English</option>
+          <option value="es-ES">Spanish</option>
+          <option value="fr-FR">French</option>
+          <option value="de-DE">German</option>
+          <option value="pt-BR">Portuguese</option>
+          <option value="zh-CN">Chinese</option>
+          <option value="ja-JP">Japanese</option>
+          <option value="hi-IN">Hindi</option>
+          <option value="ar-SA">Arabic</option>
+          <option value="ru-RU">Russian</option>
+        </select>
       </div>
     </section>
 

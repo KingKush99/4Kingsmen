@@ -212,8 +212,19 @@ const state = {
     previousTileOrder: null,
     reels: 3,
     wager: 10,
+    slotFaces: ["Crown", "Gem", "Sword"],
     creatorColor: "gold",
     creatorRotating: false,
+    creator: {
+      eyes: "#5c9bd8",
+      hair: "#2b1b10",
+      skin: "#d9b38c",
+      shirt: "#d7a842",
+      pants: "#202722",
+      shoes: "#1a1410",
+      height: 100,
+      weight: 100,
+    },
     profileStack: [],
   },
   profile: loadProfile(),
@@ -245,11 +256,15 @@ const els = {
   cornerMenu: document.querySelector("#cornerMenuButton"),
   miniSlotText: document.querySelector("#miniSlotText"),
   miniSlotToggle: document.querySelector("#miniSlotToggle"),
-  slotReelDisplay: document.querySelector("#slotReelDisplay"),
+  slotEmojiDisplay: document.querySelector("#slotEmojiDisplay"),
   slotResultText: document.querySelector("#slotResultText"),
   slotSpin: document.querySelector("#slotSpinButton"),
   autoSpin: document.querySelector("#autoSpinToggle"),
+  slotWagerSelect: document.querySelector("#slotWagerSelect"),
+  slotReelSelect: document.querySelector("#slotReelSelect"),
   slotLeverLarge: document.querySelector("#slotLeverLarge"),
+  liveChatButton: document.querySelector("#liveChatButton"),
+  dmsButton: document.querySelector("#dmsButton"),
   hamburgerDrawer: document.querySelector("#hamburgerDrawer"),
   drawerClose: document.querySelector("#drawerClose"),
   modalBackdrop: document.querySelector("#modalBackdrop"),
@@ -270,7 +285,6 @@ const els = {
   syncProfile: document.querySelector("#syncProfileButton"),
   profileBack: document.querySelector("#profileBackButton"),
   profileClose: document.querySelector("#profileCloseButton"),
-  editProfile: document.querySelector("#editProfileButton"),
   editProfileImage: document.querySelector("#editProfileImageButton"),
   profileImageInput: document.querySelector("#profileImageInput"),
   profileAvatarSeal: document.querySelector("#profileAvatarSeal"),
@@ -283,6 +297,8 @@ const els = {
   friendsList: document.querySelector("#friendsList"),
   profileCreatorCanvas: document.querySelector("#profileCreatorCanvas"),
   rotateCreator: document.querySelector("#rotateCreatorButton"),
+  creatorHeight: document.querySelector("#creatorHeight"),
+  creatorWeight: document.querySelector("#creatorWeight"),
   menuOverlay: document.querySelector("#menuOverlay"),
   mainMenu: document.querySelector("#mainMenu"),
   singlePlayerMenu: document.querySelector("#singlePlayerMenu"),
@@ -350,6 +366,7 @@ const els = {
   chatClose: document.querySelector("#chatClose"),
   languageToggle: document.querySelector("#languageToggle"),
   languagePanel: document.querySelector("#languagePanel"),
+  chatLanguagePicker: document.querySelector("#chatLanguagePicker"),
   chatMessages: document.querySelector("#chatMessages"),
   chatLanguage: document.querySelector("#chatLanguage"),
   chatFileInput: document.querySelector("#chatFileInput"),
@@ -678,12 +695,14 @@ function containsBlockedContent(text) {
 
 function openEditProfileModal() {
   openModal("Edit Profile", `
+    <button id="modalProfileImageButton" type="button">Change Profile Image</button>
     <label>Display name<input id="editDisplayNameInput" maxlength="64" value="${escapeHtml(state.profile.displayName)}" /></label>
     <label>Username<input id="editUsernameInput" maxlength="64" value="${escapeHtml(state.profile.username)}" /></label>
     <label>Bio<textarea id="editBioInput" maxlength="1000">${escapeHtml(state.profile.bio)}</textarea></label>
     <p class="advanced-note">Display name and username are filtered for prohibited language. Username changes are limited to once per week.</p>
     <button id="saveProfileEdits" class="primary-menu-action" type="button">Save Profile</button>
   `);
+  document.querySelector("#modalProfileImageButton")?.addEventListener("click", () => els.profileImageInput.click());
   document.querySelector("#saveProfileEdits")?.addEventListener("click", saveProfileEdits);
 }
 
@@ -787,16 +806,42 @@ function openSocialContext(userId, x, y) {
 function initCreatorAvatar() {
   if (!creatorRenderer || creatorAvatar) return;
   creatorAvatar = new THREE.Group();
-  const armor = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.58, 0.72, 1.28, 16),
-    new THREE.MeshStandardMaterial({ color: 0xd7a842, metalness: 0.45, roughness: 0.42 }),
+  const pants = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.46, 0.5, 0.88, 14),
+    new THREE.MeshStandardMaterial({ color: 0x202722, roughness: 0.5 }),
   );
-  armor.position.y = 0.85;
+  pants.name = "pants";
+  pants.position.y = 0.55;
+  const shirt = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.55, 0.66, 0.98, 16),
+    new THREE.MeshStandardMaterial({ color: 0xd7a842, metalness: 0.22, roughness: 0.42 }),
+  );
+  shirt.name = "shirt";
+  shirt.position.y = 1.22;
   const head = new THREE.Mesh(
     new THREE.SphereGeometry(0.36, 20, 20),
     new THREE.MeshStandardMaterial({ color: 0xd9b38c, roughness: 0.55 }),
   );
+  head.name = "skin";
   head.position.y = 1.7;
+  const hair = new THREE.Mesh(
+    new THREE.SphereGeometry(0.39, 16, 12, 0, Math.PI * 2, 0, Math.PI * 0.48),
+    new THREE.MeshStandardMaterial({ color: 0x2b1b10, roughness: 0.7 }),
+  );
+  hair.name = "hair";
+  hair.position.y = 1.84;
+  const leftEye = new THREE.Mesh(new THREE.SphereGeometry(0.045, 10, 10), new THREE.MeshStandardMaterial({ color: 0x5c9bd8 }));
+  leftEye.name = "eyeLeft";
+  leftEye.position.set(-0.12, 1.72, -0.31);
+  const rightEye = leftEye.clone();
+  rightEye.name = "eyeRight";
+  rightEye.position.x = 0.12;
+  const leftShoe = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.12, 0.42), new THREE.MeshStandardMaterial({ color: 0x1a1410, roughness: 0.55 }));
+  leftShoe.name = "shoeLeft";
+  leftShoe.position.set(-0.2, 0.08, -0.08);
+  const rightShoe = leftShoe.clone();
+  rightShoe.name = "shoeRight";
+  rightShoe.position.x = 0.2;
   const crown = new THREE.Mesh(
     new THREE.ConeGeometry(0.42, 0.32, 5),
     new THREE.MeshStandardMaterial({ color: 0xf1d681, metalness: 0.7, roughness: 0.28 }),
@@ -808,23 +853,30 @@ function initCreatorAvatar() {
   );
   cape.position.set(0, 0.85, 0.48);
   cape.name = "cape";
-  creatorAvatar.add(cape, armor, head, crown);
+  creatorAvatar.add(cape, pants, shirt, head, hair, leftEye, rightEye, leftShoe, rightShoe, crown);
   creatorScene.add(creatorAvatar);
   updateCreatorColor();
 }
 
 function updateCreatorColor() {
   if (!creatorAvatar) return;
-  const armor = creatorAvatar.children[1];
-  const cape = creatorAvatar.getObjectByName("cape");
-  const colors = {
-    gold: { armor: 0xd7a842, cape: 0x731919 },
-    crimson: { armor: 0x8d1433, cape: 0xd45f5f },
-    emerald: { armor: 0x55b176, cape: 0x126148 },
-  };
-  const selected = colors[state.ui.creatorColor] ?? colors.gold;
-  armor.material.color.setHex(selected.armor);
-  cape.material.color.setHex(selected.cape);
+  creatorAvatar.getObjectByName("skin")?.material.color.set(state.ui.creator.skin);
+  creatorAvatar.getObjectByName("hair")?.material.color.set(state.ui.creator.hair);
+  creatorAvatar.getObjectByName("shirt")?.material.color.set(state.ui.creator.shirt);
+  creatorAvatar.getObjectByName("pants")?.material.color.set(state.ui.creator.pants);
+  creatorAvatar.getObjectByName("eyeLeft")?.material.color.set(state.ui.creator.eyes);
+  creatorAvatar.getObjectByName("eyeRight")?.material.color.set(state.ui.creator.eyes);
+  creatorAvatar.getObjectByName("shoeLeft")?.material.color.set(state.ui.creator.shoes);
+  creatorAvatar.getObjectByName("shoeRight")?.material.color.set(state.ui.creator.shoes);
+  creatorAvatar.scale.set(state.ui.creator.weight / 100, state.ui.creator.height / 100, state.ui.creator.weight / 100);
+}
+
+function populateCreatorOptions() {
+  document.querySelectorAll("[data-creator-choice]").forEach((select) => {
+    if (select.options.length) return;
+    const label = select.dataset.creatorChoice;
+    select.innerHTML = Array.from({ length: 12 }, (_, index) => `<option value="${index + 1}">${label} ${index + 1}</option>`).join("");
+  });
 }
 
 function isAiLevelUnlocked(level) {
@@ -905,8 +957,10 @@ function requireLogin(action) {
 
 function simulateGoogleLogin() {
   if (!BACKEND_CONFIG.firebaseConfigured) {
-    addLog("Firebase config missing. Google login is gated for deployment.");
-    openModal("Backend Not Connected", "<p>Google login is ready for Firebase wiring, but this static build does not include your Firebase project config yet.</p>");
+    state.profile.signedIn = true;
+    addLog("Signed in with local preview mode. Firebase Google auth still needs deployment.");
+    closeModal();
+    showMenu("profileMenu");
     return;
   }
   state.profile.signedIn = true;
@@ -1068,7 +1122,9 @@ function handleTileAction(action) {
   else if (action === "themes") openThemesModal();
   else if (action === "leaderboard") openLeaderboardModal();
   else if (action === "achievements") openAchievementsModal();
-  else if (action === "profile") showMenu("profileMenu");
+  else if (action === "profile") {
+    if (requireLogin("Profile access")) showMenu("profileMenu");
+  }
   else if (action === "music") els.musicDrawer.hidden = false;
   else if (action === "settings") showMenu("settingsMenu");
   else if (action === "faq") openFaqModal();
@@ -2143,14 +2199,17 @@ function refreshUI() {
 
 function updateMiniSlot(player = activePlayer()) {
   if (!els.miniSlotText || !player) return;
-  els.miniSlotText.textContent = `${state.ui.reels} Reels`;
-  if (els.slotReelDisplay) els.slotReelDisplay.textContent = state.ui.reels;
+  els.miniSlotText.textContent = `${state.ui.reels}`;
+  updateSlotFaces(state.ui.slotFaces);
   const income = state.phase === "battle" ? 100 + treasureIncome(player.id) + mineIncome(player.id) : 0;
   els.miniSlotText.title = state.phase === "battle" ? `${player.name} turn: +${income} tokens next turn` : "Choose 3 to 6 reels";
 }
 
 function spinMiniSlots() {
-  const won = Math.random() > 0.58;
+  const symbols = ["Crown", "Gem", "Sword", "Shield", "Coin", "Key", "Scroll"];
+  state.ui.slotFaces = Array.from({ length: state.ui.reels }, () => symbols[Math.floor(Math.random() * symbols.length)]);
+  updateSlotFaces(state.ui.slotFaces);
+  const won = new Set(state.ui.slotFaces).size <= Math.max(1, Math.floor(state.ui.reels / 2));
   const result = won ? `You won ${state.ui.wager * state.ui.reels} tokens` : `You lost ${state.ui.wager} tokens`;
   if (els.slotResultText) els.slotResultText.textContent = result;
   addLog(`Mini slots: ${result}.`);
@@ -2160,6 +2219,11 @@ function spinMiniSlots() {
     els.slotLever?.classList.remove("pulled");
     els.slotLeverLarge?.classList.remove("pulled");
   }, 260);
+}
+
+function updateSlotFaces(faces) {
+  if (!els.slotEmojiDisplay) return;
+  els.slotEmojiDisplay.innerHTML = faces.map((face) => `<span>${face}</span>`).join("");
 }
 
 function unitAbilityAvailable(unit) {
@@ -3009,7 +3073,9 @@ els.enableAllAbilities.addEventListener("click", () => setAllAbilities(true));
 els.disableSpecialAbilities.addEventListener("click", setCoreRulesOnly);
 els.newGame.addEventListener("click", newGame);
 els.openMenu.addEventListener("click", () => showMenu("mainMenu"));
-els.cornerProfile.addEventListener("click", () => showMenu("profileMenu"));
+els.cornerProfile.addEventListener("click", () => {
+  if (requireLogin("Profile access")) showMenu("profileMenu");
+});
 els.cornerMenu.addEventListener("click", () => {
   els.hamburgerDrawer.hidden = !els.hamburgerDrawer.hidden;
 });
@@ -3044,23 +3110,19 @@ els.autoSpin.addEventListener("change", () => {
     els.autoSpin.checked = false;
   }
 });
+els.slotWagerSelect.addEventListener("change", () => {
+  state.ui.wager = Number(els.slotWagerSelect.value);
+});
+els.slotReelSelect.addEventListener("change", () => {
+  state.ui.reels = Number(els.slotReelSelect.value);
+  state.ui.slotFaces = state.ui.slotFaces.slice(0, state.ui.reels);
+  while (state.ui.slotFaces.length < state.ui.reels) state.ui.slotFaces.push("Coin");
+  updateMiniSlot();
+});
 document.querySelectorAll("[data-close-panel]").forEach((button) => {
   button.addEventListener("click", () => {
     const panel = document.querySelector(`#${button.dataset.closePanel}`);
     if (panel) panel.hidden = true;
-  });
-});
-document.querySelectorAll("[data-reels]").forEach((button) => {
-  button.addEventListener("click", () => {
-    state.ui.reels = Number(button.dataset.reels);
-    document.querySelectorAll("[data-reels]").forEach((item) => item.classList.toggle("active", item === button));
-    updateMiniSlot();
-  });
-});
-document.querySelectorAll("[data-wager]").forEach((button) => {
-  button.addEventListener("click", () => {
-    state.ui.wager = Number(button.dataset.wager);
-    document.querySelectorAll("[data-wager]").forEach((item) => item.classList.toggle("active", item === button));
   });
 });
 els.googleLogin.addEventListener("click", simulateGoogleLogin);
@@ -3075,23 +3137,35 @@ els.profileBack.addEventListener("click", () => {
   }
 });
 els.profileClose.addEventListener("click", () => showMenu("mainMenu"));
-els.editProfile.addEventListener("click", openEditProfileModal);
 els.profileSettings.addEventListener("click", () => openModal("Profile Settings", "<p>Profile visibility, requests, badges, and notification settings live here.</p>"));
-els.editProfileImage.addEventListener("click", () => els.profileImageInput.click());
+els.editProfileImage.addEventListener("click", openEditProfileModal);
 els.profileImageInput.addEventListener("change", handleProfileImageUpload);
 document.querySelectorAll("[data-social-search]").forEach((input) => {
   input.addEventListener("input", () => renderSocialLists(input.value));
 });
 els.rotateCreator.addEventListener("click", () => {
   state.ui.creatorRotating = !state.ui.creatorRotating;
-  els.rotateCreator.textContent = state.ui.creatorRotating ? "Stop" : "Rotate";
+  els.rotateCreator.textContent = state.ui.creatorRotating ? "Auto-rotate On" : "Auto-rotate Off";
 });
-document.querySelectorAll("[data-creator-color]").forEach((button) => {
-  button.addEventListener("click", () => {
-    state.ui.creatorColor = button.dataset.creatorColor;
+document.querySelectorAll("[data-creator-part]").forEach((input) => {
+  input.addEventListener("input", () => {
+    state.ui.creator[input.dataset.creatorPart] = input.value;
     updateCreatorColor();
   });
 });
+els.creatorHeight.addEventListener("input", () => {
+  state.ui.creator.height = Number(els.creatorHeight.value);
+  updateCreatorColor();
+});
+els.creatorWeight.addEventListener("input", () => {
+  state.ui.creator.weight = Number(els.creatorWeight.value);
+  updateCreatorColor();
+});
+document.querySelectorAll("[data-creator-choice]").forEach((select) => {
+  select.addEventListener("change", () => addLog(`Creator ${select.dataset.creatorChoice} set to ${select.value}.`));
+});
+els.liveChatButton.addEventListener("click", () => openModal("Kingdom Live Chat", "<p>Live realm chat appears here once the multiplayer chat backend is connected.</p><div class=\"faq-list\"><div class=\"faq-row\"><strong>Global</strong><span>Welcome to the kingdom chat.</span></div><div class=\"faq-row\"><strong>Match</strong><span>Match chat will appear during live games.</span></div></div>"));
+els.dmsButton.addEventListener("click", () => openModal("Direct Messages", "<p>DMs and group chats require sign-in and the friends backend.</p><div class=\"faq-list\"><div class=\"faq-row\"><strong>Group Chat</strong><span>Create parties, clans, and private strategy rooms.</span></div><div class=\"faq-row\"><strong>Inbox</strong><span>Your messages will sync after Firebase is configured.</span></div></div>"));
 els.themeTier.addEventListener("change", () => {
   els.setupThemeTier.value = els.themeTier.value;
   drawBoard();
@@ -3147,11 +3221,9 @@ els.chatClose.addEventListener("click", () => {
 els.languageToggle.addEventListener("click", () => {
   els.languagePanel.hidden = !els.languagePanel.hidden;
 });
-document.querySelectorAll("[data-lang-label]").forEach((button) => {
-  button.addEventListener("click", () => {
-    addChatMessage(WELCOME_TRANSLATIONS[button.dataset.langLabel] ?? WELCOME_TRANSLATIONS.English, "bot");
-    els.languagePanel.hidden = true;
-  });
+els.chatLanguagePicker.addEventListener("change", () => {
+  addChatMessage(WELCOME_TRANSLATIONS[els.chatLanguagePicker.value] ?? WELCOME_TRANSLATIONS.English, "bot");
+  els.languagePanel.hidden = true;
 });
 document.querySelectorAll("[data-chat-topic]").forEach((button) => {
   button.addEventListener("click", () => {
@@ -3190,8 +3262,8 @@ renderPlayerCharacters();
 renderSettings();
 renderProfile();
 initCreatorAvatar();
-document.querySelector('[data-wager="10"]')?.classList.add("active");
-document.querySelector('[data-reels="3"]')?.classList.add("active");
+populateCreatorOptions();
+updateMiniSlot();
 applyPreset("official");
 setAiDifficulty(state.settings.ai.difficulty);
 applySettingEffects();

@@ -421,53 +421,39 @@ input[type="range"] {
   font-size: 22px;
 }
 
-.mini-slot {
+.mini-slot-shell {
   position: fixed;
   right: 18px;
   bottom: 18px;
   z-index: 30;
-  width: min(250px, calc(100vw - 36px));
-  min-height: 70px;
-  display: grid;
-  grid-template-columns: 1fr 52px;
-  align-items: stretch;
-  gap: 8px;
-  padding: 9px;
-  border: 1px solid rgba(215, 168, 66, 0.42);
-  border-radius: 8px;
-  background: rgba(18, 25, 23, 0.88);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.32);
 }
 
-.reels-toggle {
-  display: grid;
-  align-content: center;
-  justify-items: start;
-  min-height: 52px;
-  border-color: rgba(215, 168, 66, 0.42);
-  background: linear-gradient(145deg, rgba(78, 46, 20, 0.94), rgba(18, 25, 23, 0.94));
-  text-align: left;
+.mini-slot-corner {
+  position: static;
+  color: #17130a;
+  background: radial-gradient(circle at 35% 28%, #f7e6a3, #d7a842 60%, #734817);
+  font-size: 15px;
+  letter-spacing: 0;
 }
 
-.reels-toggle span,
-.mini-slot span {
+.mini-slot-shell span {
   color: var(--muted);
   font-size: 12px;
-}
-
-.reels-toggle strong {
-  font-size: 26px;
-  color: var(--gold);
 }
 
 .slot-lever {
   position: relative;
   min-height: 52px;
+  cursor: pointer;
   border-radius: 10px;
   border-color: rgba(241, 214, 129, 0.55);
-  background: linear-gradient(180deg, #4a2c15, #15120f);
-  box-shadow: inset 0 5px 12px rgba(255, 255, 255, 0.08), inset 0 -12px 16px rgba(0, 0, 0, 0.42);
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.1), transparent 24%),
+    linear-gradient(180deg, #66401d, #15120f);
+  box-shadow:
+    inset 0 5px 12px rgba(255, 255, 255, 0.14),
+    inset 0 -12px 16px rgba(0, 0, 0, 0.48),
+    0 12px 22px rgba(0, 0, 0, 0.38);
 }
 
 .slot-lever span {
@@ -502,14 +488,30 @@ input[type="range"] {
   display: grid;
   place-items: center;
   gap: 2px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid rgba(215, 168, 66, 0.28);
+  border-radius: 8px;
+  background: #0b0f0d;
   text-align: center;
 }
 
-.slot-display strong {
-  color: var(--gold);
-  font-size: 44px;
-  line-height: 1;
+.slot-emoji-display {
+  display: grid;
+  grid-auto-flow: column;
+  gap: 8px;
+  justify-content: center;
+}
+
+.slot-emoji-display span {
+  min-width: 58px;
+  padding: 10px 8px;
+  border: 1px solid rgba(241, 214, 129, 0.35);
+  border-radius: 6px;
+  background: linear-gradient(180deg, #f2f1e9, #bfc8bd);
+  color: #17130a;
+  font-size: 13px;
+  font-weight: 900;
 }
 
 .slot-display small {
@@ -517,18 +519,19 @@ input[type="range"] {
   font-weight: 800;
 }
 
-.slot-modal-grid {
+.slot-machine-body {
   display: grid;
   grid-template-columns: 1fr 120px 72px;
   grid-template-areas:
-    "wager center lever"
-    "wager reels reels";
+    "controls center lever";
   gap: 12px;
   align-items: center;
 }
 
-.slot-wager {
-  grid-area: wager;
+.slot-controls-row {
+  grid-area: controls;
+  display: grid;
+  gap: 10px;
 }
 
 .slot-center {
@@ -536,10 +539,6 @@ input[type="range"] {
   display: grid;
   justify-items: center;
   gap: 8px;
-}
-
-.slot-reels {
-  grid-area: reels;
 }
 
 .slot-lever-large {
@@ -587,37 +586,34 @@ input[type="range"] {
   font-size: 12px;
 }
 
-.reel-options,
-.token-options {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-  margin-top: 10px;
-}
-
-.token-options {
-  grid-template-columns: 1fr;
-}
-
-.token-options button.active,
-.reel-options button.active {
-  outline: 2px solid #fff1b8;
-  box-shadow: 0 0 18px rgba(241, 214, 129, 0.45);
-}
-
-.reel-options button,
-.token-options button {
-  min-height: 46px;
-  color: #17130a;
-  background: linear-gradient(180deg, #f1d681, #b27a28);
-  font-size: 18px;
-  font-weight: 900;
-}
-
 .mini-close {
   position: absolute;
   top: 8px;
   right: 8px;
+}
+
+.side-home-button {
+  position: fixed;
+  z-index: 29;
+  min-width: 92px;
+  min-height: 48px;
+  border-color: rgba(215, 168, 66, 0.5);
+  background: rgba(18, 25, 23, 0.92);
+  color: var(--gold);
+  font-weight: 900;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.34);
+}
+
+.live-side-button {
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.dms-side-button {
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .menu-news-strip button {
@@ -847,7 +843,19 @@ body.profile-open .menu-corner {
 }
 
 .creator-options {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.creator-options label {
+  padding: 8px;
+  border: 1px solid rgba(215, 168, 66, 0.22);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.16);
+}
+
+.creator-options input,
+.creator-options select {
+  width: 100%;
 }
 
 .profile-panels {
@@ -1477,7 +1485,7 @@ label {
 }
 
 .bot-toggle {
-  font-size: 13px;
+  font-size: 20px;
 }
 
 .chat-panel {
@@ -1485,7 +1493,7 @@ label {
   width: min(420px, calc(100vw - 36px));
   height: min(420px, calc(100vh - 132px));
   display: grid;
-  grid-template-rows: auto auto 1fr auto auto;
+  grid-template-rows: auto auto 1fr auto;
   border: 1px solid rgba(215, 168, 66, 0.42);
   border-radius: 8px;
   overflow: hidden;
@@ -1511,41 +1519,22 @@ label {
 
 .language-panel {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 6px;
-  padding: 8px 10px;
+  grid-template-columns: 1fr;
+  gap: 4px;
+  width: 150px;
+  padding: 6px 8px;
   border-bottom: 1px solid var(--line);
 }
 
-.language-panel button {
-  min-height: 30px;
-  padding: 0 8px;
+.language-panel select {
+  width: 100%;
+  height: 32px;
   font-size: 12px;
-}
-
-.chat-tabs {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 6px;
-  padding: 8px 10px;
-  border-bottom: 1px solid var(--line);
-}
-
-.chat-tabs button {
-  min-height: 32px;
-  padding: 0 6px;
-  font-size: 12px;
-}
-
-.chat-tabs button.active {
-  border-color: rgba(241, 214, 129, 0.68);
-  background: rgba(215, 168, 66, 0.18);
-  color: var(--gold);
 }
 
 .chat-tools {
   display: grid;
-  grid-template-columns: 1fr 1fr auto;
+  grid-template-columns: 38px 38px 1fr;
   gap: 8px;
   padding: 10px;
   border-top: 1px solid var(--line);
@@ -1553,23 +1542,37 @@ label {
 
 .chat-tools label {
   display: grid;
-  gap: 4px;
+  place-items: center;
   min-width: 0;
-  color: var(--muted);
-  font-size: 12px;
-}
-
-.chat-tools select {
-  width: 100%;
+  min-height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #202923;
+  color: var(--gold);
+  font-size: 18px;
+  cursor: pointer;
 }
 
 .file-tool input {
-  max-width: 120px;
-  font-size: 11px;
+  display: none;
+}
+
+#voiceInputButton {
+  min-height: 38px;
+  padding: 0;
+  font-size: 18px;
 }
 
 .chat-header,
 .chat-form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  padding: 0;
+  border: 0;
+}
+
+.chat-header {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -1577,14 +1580,8 @@ label {
   border-bottom: 1px solid var(--line);
 }
 
-.chat-form {
-  border-top: 1px solid var(--line);
-  border-bottom: 0;
-}
-
 .chat-form input {
   min-width: 0;
-  flex: 1;
   height: 38px;
   border-radius: 6px;
   padding: 0 10px;
@@ -1893,7 +1890,7 @@ label {
     bottom: 14px;
   }
 
-  .slot-modal-grid {
+  .slot-machine-body {
     grid-template-columns: 1fr;
     grid-template-areas:
       "wager"
