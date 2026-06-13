@@ -149,15 +149,29 @@ const ACHIEVEMENTS = [
   { id: "worldClass", name: "World-Class Heir", description: "Beat World-Class AI." },
   { id: "auctionHouse", name: "Auction House", description: "Win an auction." },
 ];
+const ACHIEVEMENT_SETS = [
+  { id: "current", name: "Current Top 10", seed: "active strategy" },
+  { id: "weekly", name: "Weekly", seed: "weekly crown run" },
+  { id: "yearly", name: "Yearly", seed: "seasonal kingdom record" },
+  { id: "variations", name: "Variations", seed: "rules variation mastery" },
+  { id: "beginner", name: "Beginner", seed: "beginner clears" },
+  { id: "novice", name: "Novice", seed: "novice clears" },
+  { id: "intermediate", name: "Intermediate", seed: "intermediate clears" },
+  { id: "pro", name: "Pro", seed: "pro clears" },
+  { id: "worldClass", name: "World-Class", seed: "world-class clears" },
+];
 const EASTER_ITEMS = [
   { id: "hiddenCrown", name: "Hidden Crown", description: "A secret profile relic." },
   { id: "royalKey", name: "Royal Key", description: "Unlocks a future chamber." },
   { id: "silverScroll", name: "Silver Scroll", description: "Contains an old kingdom hint." },
 ];
 const AUCTION_LISTINGS = [
-  { id: "a1", item: "Founder Banner", rarity: "Legendary", bid: 320, buyout: 900, seller: "System", ends: "02:14:09" },
-  { id: "a2", item: "Crimson Crown Frame", rarity: "Epic", bid: 180, buyout: 520, seller: "System", ends: "05:48:31" },
-  { id: "a3", item: "Ancient Mine Seal", rarity: "Rare", bid: 75, buyout: 240, seller: "System", ends: "11:03:18" },
+  { id: "a1", item: "Founder Banner", category: "Banners", rarity: "Legendary", bid: 320, buyout: 900, seller: "System", ends: "02:14:09", watchers: 18 },
+  { id: "a2", item: "Crimson Crown Frame", category: "Frames", rarity: "Epic", bid: 180, buyout: 520, seller: "System", ends: "05:48:31", watchers: 11 },
+  { id: "a3", item: "Ancient Mine Seal", category: "Relics", rarity: "Rare", bid: 75, buyout: 240, seller: "System", ends: "11:03:18", watchers: 7 },
+  { id: "a4", item: "Fogbreaker Title", category: "Titles", rarity: "Rare", bid: 95, buyout: 260, seller: "Season Chest", ends: "01:08:45", watchers: 9 },
+  { id: "a5", item: "Golden Empire Preview", category: "Themes", rarity: "Epic", bid: 420, buyout: 1600, seller: "Royal Mint", ends: "08:20:15", watchers: 24 },
+  { id: "a6", item: "Iron Keep Banner", category: "Banners", rarity: "Common", bid: 25, buyout: 80, seller: "System", ends: "00:43:12", watchers: 4 },
 ];
 const LEADERBOARD_ROWS = [
   { rank: 1, name: "Cloud sync required", elo: 0, wins: 0 },
@@ -225,6 +239,20 @@ const state = {
       height: 100,
       weight: 100,
     },
+    creatorChoices: {
+      hairstyle: 1,
+      body: 1,
+      shirt: 1,
+      pants: 1,
+      shoes: 1,
+      eyes: 1,
+      nose: 1,
+      ears: 1,
+    },
+    dropdownClicks: { variations: 0, players: 0, faq: 0 },
+    activeDropdown: null,
+    achievementSet: "current",
+    achievementMeta: {},
     profileStack: [],
   },
   profile: loadProfile(),
@@ -302,6 +330,14 @@ const els = {
   menuOverlay: document.querySelector("#menuOverlay"),
   mainMenu: document.querySelector("#mainMenu"),
   singlePlayerMenu: document.querySelector("#singlePlayerMenu"),
+  auctionsMenu: document.querySelector("#auctionsMenu"),
+  auctionSearch: document.querySelector("#auctionSearch"),
+  auctionRarity: document.querySelector("#auctionRarity"),
+  auctionCategory: document.querySelector("#auctionCategory"),
+  auctionMaxBid: document.querySelector("#auctionMaxBid"),
+  auctionSort: document.querySelector("#auctionSort"),
+  auctionResultCount: document.querySelector("#auctionResultCount"),
+  auctionListings: document.querySelector("#auctionListings"),
   createGameMenu: document.querySelector("#createGameMenu"),
   advancedMenu: document.querySelector("#advancedMenu"),
   advancedBack: document.querySelector("#advancedMenu .back-button"),
@@ -399,6 +435,7 @@ const animations = [];
 let dragState = null;
 let creatorAvatar = null;
 
+creatorRenderer?.setClearColor(0x101312, 1);
 scene.background = new THREE.Color(0x0c0f0e);
 scene.add(new THREE.AmbientLight(0xffffff, 1.55));
 const sun = new THREE.DirectionalLight(0xffffff, 2.2);
@@ -475,8 +512,15 @@ function showMenu(screenId) {
   });
   document.body.classList.toggle("profile-open", screenId === "profileMenu");
   els.tileDropdown.hidden = true;
+  state.ui.activeDropdown = null;
   refreshPresetSummary();
-  if (screenId === "profileMenu") setTimeout(setupCreatorRenderer, 0);
+  if (screenId === "auctionsMenu") renderAuctionsPage();
+  if (screenId === "profileMenu") {
+    setTimeout(() => {
+      setupCreatorRenderer();
+      if (creatorRenderer) creatorRenderer.render(creatorScene, creatorCamera);
+    }, 80);
+  }
 }
 
 function closeMenu() {
@@ -836,6 +880,20 @@ function initCreatorAvatar() {
   const rightEye = leftEye.clone();
   rightEye.name = "eyeRight";
   rightEye.position.x = 0.12;
+  const nose = new THREE.Mesh(
+    new THREE.ConeGeometry(0.055, 0.16, 10),
+    new THREE.MeshStandardMaterial({ color: 0xc89b73, roughness: 0.6 }),
+  );
+  nose.name = "nose";
+  nose.rotation.x = Math.PI / 2;
+  nose.position.set(0, 1.64, -0.36);
+  const leftEar = new THREE.Mesh(new THREE.SphereGeometry(0.07, 10, 8), new THREE.MeshStandardMaterial({ color: 0xd9b38c, roughness: 0.55 }));
+  leftEar.name = "earLeft";
+  leftEar.scale.set(0.65, 1, 0.38);
+  leftEar.position.set(-0.37, 1.68, 0);
+  const rightEar = leftEar.clone();
+  rightEar.name = "earRight";
+  rightEar.position.x = 0.37;
   const leftShoe = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.12, 0.42), new THREE.MeshStandardMaterial({ color: 0x1a1410, roughness: 0.55 }));
   leftShoe.name = "shoeLeft";
   leftShoe.position.set(-0.2, 0.08, -0.08);
@@ -853,9 +911,10 @@ function initCreatorAvatar() {
   );
   cape.position.set(0, 0.85, 0.48);
   cape.name = "cape";
-  creatorAvatar.add(cape, pants, shirt, head, hair, leftEye, rightEye, leftShoe, rightShoe, crown);
+  creatorAvatar.add(cape, pants, shirt, head, hair, leftEye, rightEye, nose, leftEar, rightEar, leftShoe, rightShoe, crown);
   creatorScene.add(creatorAvatar);
   updateCreatorColor();
+  applyCreatorChoices();
 }
 
 function updateCreatorColor() {
@@ -866,9 +925,50 @@ function updateCreatorColor() {
   creatorAvatar.getObjectByName("pants")?.material.color.set(state.ui.creator.pants);
   creatorAvatar.getObjectByName("eyeLeft")?.material.color.set(state.ui.creator.eyes);
   creatorAvatar.getObjectByName("eyeRight")?.material.color.set(state.ui.creator.eyes);
+  creatorAvatar.getObjectByName("nose")?.material.color.set(state.ui.creator.skin);
+  creatorAvatar.getObjectByName("earLeft")?.material.color.set(state.ui.creator.skin);
+  creatorAvatar.getObjectByName("earRight")?.material.color.set(state.ui.creator.skin);
   creatorAvatar.getObjectByName("shoeLeft")?.material.color.set(state.ui.creator.shoes);
   creatorAvatar.getObjectByName("shoeRight")?.material.color.set(state.ui.creator.shoes);
   creatorAvatar.scale.set(state.ui.creator.weight / 100, state.ui.creator.height / 100, state.ui.creator.weight / 100);
+}
+
+function applyCreatorChoices() {
+  if (!creatorAvatar) return;
+  const choice = state.ui.creatorChoices;
+  const bodyScale = 0.86 + (choice.body % 12) * 0.025;
+  const shirt = creatorAvatar.getObjectByName("shirt");
+  const pants = creatorAvatar.getObjectByName("pants");
+  const hair = creatorAvatar.getObjectByName("hair");
+  const leftEye = creatorAvatar.getObjectByName("eyeLeft");
+  const rightEye = creatorAvatar.getObjectByName("eyeRight");
+  const nose = creatorAvatar.getObjectByName("nose");
+  const leftEar = creatorAvatar.getObjectByName("earLeft");
+  const rightEar = creatorAvatar.getObjectByName("earRight");
+  const leftShoe = creatorAvatar.getObjectByName("shoeLeft");
+  const rightShoe = creatorAvatar.getObjectByName("shoeRight");
+  if (shirt) {
+    shirt.scale.set(0.9 + (choice.shirt % 4) * 0.05, 0.94 + (choice.body % 3) * 0.04, 0.9 + (choice.shirt % 5) * 0.04);
+    shirt.material.metalness = (choice.shirt % 4) * 0.08;
+  }
+  if (pants) pants.scale.set(bodyScale, 0.92 + (choice.pants % 4) * 0.045, bodyScale);
+  if (hair) {
+    hair.scale.set(0.8 + (choice.hairstyle % 6) * 0.07, 0.72 + (choice.hairstyle % 4) * 0.09, 0.8 + (choice.hairstyle % 5) * 0.06);
+    hair.position.y = 1.82 + (choice.hairstyle % 3) * 0.03;
+  }
+  [leftEye, rightEye].forEach((eye) => {
+    if (!eye) return;
+    eye.scale.set(0.75 + (choice.eyes % 4) * 0.16, 0.75 + (choice.eyes % 3) * 0.12, 0.75);
+  });
+  if (nose) nose.scale.setScalar(0.72 + (choice.nose % 6) * 0.11);
+  [leftEar, rightEar].forEach((ear) => {
+    if (!ear) return;
+    ear.scale.set(0.45 + (choice.ears % 6) * 0.08, 0.8 + (choice.ears % 4) * 0.08, 0.34);
+  });
+  [leftShoe, rightShoe].forEach((shoe) => {
+    if (!shoe) return;
+    shoe.scale.set(0.85 + (choice.shoes % 5) * 0.07, 0.8 + (choice.shoes % 3) * 0.08, 0.9 + (choice.shoes % 4) * 0.1);
+  });
 }
 
 function populateCreatorOptions() {
@@ -902,7 +1002,12 @@ function unlockNextDifficulty(completedLevel) {
 
 function renderSettings() {
   if (!els.settingsOptions) return;
-  els.settingsOptions.innerHTML = SETTINGS.map((setting) => {
+  els.settingsOptions.innerHTML = settingsMarkup();
+  bindSettingControls(els.settingsOptions);
+}
+
+function settingsMarkup() {
+  return SETTINGS.map((setting) => {
     const value = state.settings.options[setting.id];
     const control =
       setting.type === "checkbox"
@@ -915,13 +1020,21 @@ function renderSettings() {
       </label>
     `;
   }).join("");
-  els.settingsOptions.querySelectorAll("[data-setting]").forEach((control) => {
+}
+
+function bindSettingControls(root) {
+  root.querySelectorAll("[data-setting]").forEach((control) => {
     control.addEventListener("change", () => {
       const setting = SETTINGS.find((item) => item.id === control.dataset.setting);
       state.settings.options[setting.id] = setting.type === "checkbox" ? control.checked : control.value;
       applySettingEffects();
     });
   });
+}
+
+function openSettingsModal() {
+  openModal("Settings", `<div class="settings-options modal-settings">${settingsMarkup()}</div>`);
+  bindSettingControls(els.modalBody);
 }
 
 function applySettingEffects() {
@@ -1034,20 +1147,48 @@ function buyOrApplyTheme(themeId) {
   openThemesModal();
 }
 
-function openAuctionsModal() {
-  const listings = AUCTION_LISTINGS.map((listing) => `
-    <div class="auction-card">
-      <strong>${listing.item}</strong>
-      <span>${listing.rarity} | Seller: ${listing.seller}</span>
-      <span>Current bid: ${listing.bid} coins | Buyout: ${listing.buyout} coins</span>
-      <span>Ends in ${listing.ends}</span>
-      <button data-auction-bid="${listing.id}" type="button">Bid</button>
-    </div>
-  `).join("");
-  openModal("Royal Auctions", `<p>Bids use coins and will be server-validated when Firebase Functions are deployed.</p><div class="auction-grid">${listings}</div>`);
-  document.querySelectorAll("[data-auction-bid]").forEach((button) => {
+function renderAuctionsPage() {
+  if (!els.auctionListings) return;
+  const query = (els.auctionSearch?.value ?? "").toLowerCase();
+  const rarity = els.auctionRarity?.value ?? "all";
+  const category = els.auctionCategory?.value ?? "all";
+  const maxBid = Number(els.auctionMaxBid?.value ?? 99999);
+  const sort = els.auctionSort?.value ?? "ending";
+  const rarityRank = { Common: 1, Rare: 2, Epic: 3, Legendary: 4 };
+  let listings = AUCTION_LISTINGS.filter((listing) => {
+    const text = `${listing.item} ${listing.category} ${listing.rarity} ${listing.seller}`.toLowerCase();
+    return text.includes(query) && (rarity === "all" || listing.rarity === rarity) && (category === "all" || listing.category === category) && listing.bid <= maxBid;
+  });
+  listings = listings.sort((a, b) => {
+    if (sort === "bidAsc") return a.bid - b.bid;
+    if (sort === "bidDesc") return b.bid - a.bid;
+    if (sort === "rarity") return rarityRank[b.rarity] - rarityRank[a.rarity];
+    return a.ends.localeCompare(b.ends);
+  });
+  els.auctionResultCount.textContent = `${listings.length} listing${listings.length === 1 ? "" : "s"}`;
+  els.auctionListings.innerHTML = listings.map((listing) => `
+    <article class="auction-card rarity-${listing.rarity.toLowerCase()}">
+      <div>
+        <span class="auction-rarity">${listing.rarity}</span>
+        <h3>${listing.item}</h3>
+        <p>${listing.category} | Seller: ${listing.seller} | ${listing.watchers} watching</p>
+      </div>
+      <div class="auction-numbers">
+        <strong>${listing.bid} coins</strong>
+        <span>Buyout ${listing.buyout}</span>
+        <span>Ends ${listing.ends}</span>
+      </div>
+      <div class="auction-actions">
+        <button data-auction-bid="${listing.id}" type="button">Bid</button>
+        <button data-auction-buyout="${listing.id}" type="button">Buyout</button>
+      </div>
+    </article>
+  `).join("") || `<div class="auction-empty">No listings match those filters.</div>`;
+  els.auctionListings.querySelectorAll("[data-auction-bid], [data-auction-buyout]").forEach((button) => {
     button.addEventListener("click", () => {
-      if (requireLogin("Auction bidding")) openModal("Auction Backend Required", "<p>Auction bidding needs Firebase Functions for authoritative bid validation before real coins can be spent.</p>");
+      if (requireLogin("Auction bidding")) {
+        openModal("Auction Backend Required", "<p>Auction bids and buyouts need Firebase Functions for authoritative bid validation before real coins can be spent.</p>");
+      }
     });
   });
 }
@@ -1058,21 +1199,103 @@ function openLeaderboardModal() {
 }
 
 function openAchievementsModal() {
-  const rows = ACHIEVEMENTS.map((item) => `<div class="achievement-row ${state.profile.achievements.includes(item.id) ? "" : "locked"}"><strong>${item.name}</strong><span>${item.description}</span></div>`).join("");
-  openModal("Achievements", `<div class="achievement-list">${rows}</div>`);
-}
-
-function openFaqModal() {
-  openModal("FAQ", `
-    <div class="faq-list">
-      <div class="faq-row"><strong>How do I win?</strong><span>Capture and return every rival treasure, or be the last surviving King.</span></div>
-      <div class="faq-row"><strong>Does losing treasure eliminate me?</strong><span>No. The capturer gains bonus tokens and income, but you stay in the match.</span></div>
-      <div class="faq-row"><strong>Are payments live?</strong><span>The UI is ready; Stripe requires Firebase Functions before real checkout is enabled.</span></div>
+  const activeSet = ACHIEVEMENT_SETS.find((set) => set.id === state.ui.achievementSet) ?? ACHIEVEMENT_SETS[0];
+  const meta = achievementMeta(activeSet.id);
+  const bank = achievementBank(activeSet);
+  const visible = activeSet.id === "current" ? bank.slice(0, 10) : bank.slice(meta.page * 25, meta.page * 25 + 25);
+  openModal("Achievements", `
+    <div class="achievement-hub">
+      <div class="achievement-tabs">
+        ${ACHIEVEMENT_SETS.map((set) => `<button class="${set.id === activeSet.id ? "active" : ""}" data-achievement-set="${set.id}" type="button">${set.name}</button>`).join("")}
+      </div>
+      <div class="achievement-prestige">
+        <strong>${activeSet.name}</strong>
+        <span>Bank: 100 achievements | Showing ${visible.length} | Prestige ${meta.prestige} | Multiplier ${meta.prestige + 1}x</span>
+        <button data-achievement-action="prestige" type="button">Prestige Completed Set</button>
+        <button data-achievement-action="reset-current" type="button">Reset This Set</button>
+        <button data-achievement-action="reset-all" type="button">Reset All</button>
+      </div>
+      <div class="achievement-list">${visible.map((item) => `<div class="achievement-row ${item.unlocked ? "" : "locked"}"><strong>${item.name}</strong><span>${item.description}</span><small>${item.progress}/100 progress</small></div>`).join("")}</div>
     </div>
   `);
+  els.modalBody.querySelectorAll("[data-achievement-set]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.ui.achievementSet = button.dataset.achievementSet;
+      openAchievementsModal();
+    });
+  });
+  els.modalBody.querySelectorAll("[data-achievement-action]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const action = button.dataset.achievementAction;
+      if (action === "reset-all") state.ui.achievementMeta = {};
+      if (action === "reset-current") state.ui.achievementMeta[activeSet.id] = { prestige: 0, page: 0 };
+      if (action === "prestige") {
+        meta.prestige += 1;
+        meta.page = (meta.page + 1) % 4;
+        state.ui.achievementMeta[activeSet.id] = meta;
+      }
+      openAchievementsModal();
+    });
+  });
 }
 
-function openTileDropdown(type) {
+function achievementMeta(setId) {
+  if (!state.ui.achievementMeta[setId]) state.ui.achievementMeta[setId] = { prestige: 0, page: 0 };
+  return state.ui.achievementMeta[setId];
+}
+
+function achievementBank(set) {
+  const templates = [
+    "Win matches", "Capture treasure", "Reveal fog", "Build mines", "Defend the crown",
+    "Use special abilities", "Survive turns", "Earn tokens", "Place units", "Beat AI",
+  ];
+  return Array.from({ length: 100 }, (_, index) => {
+    const unlocked = index < state.profile.achievements.length;
+    return {
+      name: `${set.name} ${templates[index % templates.length]} ${index + 1}`,
+      description: `Complete ${set.seed} objective ${index + 1}. Reset loses progress; completing a visible set can prestige the multiplier.`,
+      progress: unlocked ? 100 : Math.min(95, (index * 17 + set.id.length * 11) % 100),
+      unlocked,
+    };
+  });
+}
+
+function openRulesGuideModal() {
+  const character = state.profile.displayName || "your commander";
+  openModal("Rules Guide", `
+    <div class="tutorial-guide">
+      <div class="tutorial-character">
+        <div class="profile-avatar-seal mini-guide-avatar">${state.profile.avatarImage ? "" : "C"}</div>
+        <strong>${character}</strong>
+        <span>Your profile character acts as the guide.</span>
+      </div>
+      <div class="faq-list">
+        <div class="faq-row"><strong>Site Tutorial</strong><span>The guide walks through Live, Single Player, Auctions, Themes, Profile, chat, and the hamburger menu.</span><button id="startSiteTutorial" type="button">Start Site Tutorial</button></div>
+        <div class="faq-row"><strong>In-game Tutorial</strong><span>The same character points out turn order, fog, movement, treasure, mines, combat, and Focus Crown.</span><button id="startInGameTutorial" type="button">Watch AI Tutorial</button></div>
+      </div>
+    </div>
+  `);
+  const guideAvatar = els.modalBody.querySelector(".mini-guide-avatar");
+  if (state.profile.avatarImage && guideAvatar) guideAvatar.style.backgroundImage = `url("${state.profile.avatarImage}")`;
+  els.modalBody.querySelector("#startSiteTutorial")?.addEventListener("click", () => {
+    addChatMessage("Site tutorial: start with Live, then Single Player, Auctions, Profile, Settings, and the corner tools.", "bot");
+    closeModal();
+  });
+  els.modalBody.querySelector("#startInGameTutorial")?.addEventListener("click", () => {
+    closeModal();
+    startTutorialDemo();
+  });
+}
+
+function openTileDropdown(type, trigger) {
+  if (state.ui.activeDropdown !== type) state.ui.dropdownClicks[type] = 0;
+  state.ui.dropdownClicks[type] = (state.ui.dropdownClicks[type] || 0) + 1;
+  if (state.ui.activeDropdown === type && state.ui.dropdownClicks[type] % 2 === 0) {
+    els.tileDropdown.hidden = true;
+    state.ui.activeDropdown = null;
+    return;
+  }
+  state.ui.activeDropdown = type;
   const content = {
     variations: `
       <h3>Variations</h3>
@@ -1091,9 +1314,21 @@ function openTileDropdown(type) {
         <button data-player-preset="4" type="button">4 Players</button>
       </div>
     `,
+    faq: `
+      <h3>FAQ</h3>
+      <div class="faq-list compact-faq">
+        ${dynamicFaqQuestions().map((item) => `<div class="faq-row"><strong>${item.q}</strong><span>${item.a}</span></div>`).join("")}
+      </div>
+    `,
   };
   els.tileDropdown.innerHTML = content[type] ?? "";
   els.tileDropdown.hidden = !els.tileDropdown.innerHTML;
+  if (trigger && els.tileDropdown.innerHTML) {
+    const rect = trigger.getBoundingClientRect();
+    els.tileDropdown.classList.add("floating");
+    els.tileDropdown.style.left = `${Math.max(12, Math.min(window.innerWidth - 360, rect.left))}px`;
+    els.tileDropdown.style.top = `${rect.bottom + 8}px`;
+  }
   els.tileDropdown.querySelectorAll("[data-menu-target]").forEach((button) => {
     button.addEventListener("click", () => showMenu(button.dataset.menuTarget));
   });
@@ -1106,19 +1341,31 @@ function openTileDropdown(type) {
   });
 }
 
-function handleTileAction(action) {
+function dynamicFaqQuestions() {
+  const revealed = state.players[0]?.revealed?.size ?? 0;
+  const wins = state.profile.stats?.wins ?? 0;
+  return [
+    { q: "How do I win?", a: "Capture every rival treasure for bonuses and victory pressure, or be the last King surviving." },
+    { q: "Does losing treasure eliminate me?", a: "No. You stay in the match, but the capturer gains token and income advantages." },
+    { q: "Why am I seeing clouds?", a: `Fog hides enemy territory. You have revealed ${revealed} tiles in the current match.` },
+    { q: "What should I focus on now?", a: wins ? "Use mines and treasure pressure to convert your win history into faster economy." : "Start with territory defense, a Seeker, and safe mine placement." },
+    { q: "Are payments and auctions live?", a: "The UI is ready. Firebase Functions and Stripe webhooks must be deployed before real coins can move." },
+  ];
+}
+
+function handleTileAction(action, trigger = null) {
   recordTileUse(action);
   if (action === "live") {
     applyPreset("official");
     startConfiguredGame();
   } else if (action === "shop") openShopModal();
-  else if (action === "auctions") openAuctionsModal();
-  else if (action === "variations") openTileDropdown("variations");
-  else if (action === "players") openTileDropdown("players");
+  else if (action === "auctions") showMenu("auctionsMenu");
+  else if (action === "variations") openTileDropdown("variations", trigger);
+  else if (action === "players") openTileDropdown("players", trigger);
   else if (action === "singlePlayer") showMenu("singlePlayerMenu");
   else if (action === "multiplayer") showMenu("multiplayerMenu");
   else if (action === "campaign") showMenu("campaignMenu");
-  else if (action === "rules") showMenu("tutorialMenu");
+  else if (action === "rules") openRulesGuideModal();
   else if (action === "themes") openThemesModal();
   else if (action === "leaderboard") openLeaderboardModal();
   else if (action === "achievements") openAchievementsModal();
@@ -1126,8 +1373,8 @@ function handleTileAction(action) {
     if (requireLogin("Profile access")) showMenu("profileMenu");
   }
   else if (action === "music") els.musicDrawer.hidden = false;
-  else if (action === "settings") showMenu("settingsMenu");
-  else if (action === "faq") openFaqModal();
+  else if (action === "settings") openSettingsModal();
+  else if (action === "faq") openTileDropdown("faq", trigger);
 }
 
 function recordTileUse(action) {
@@ -3026,14 +3273,18 @@ els.canvas.addEventListener("wheel", (event) => {
   applyFieldTransform();
 }, { passive: false });
 els.playNow.addEventListener("click", () => {
-  handleTileAction("live");
+  handleTileAction("live", els.playNow);
 });
-els.singlePlayer.addEventListener("click", () => handleTileAction("singlePlayer"));
+els.singlePlayer.addEventListener("click", () => handleTileAction("singlePlayer", els.singlePlayer));
 document.querySelectorAll(".royal-tile:not(#playNowButton):not(#singlePlayerButton)").forEach((button) => {
-  button.addEventListener("click", () => handleTileAction(button.dataset.action));
+  button.addEventListener("click", () => handleTileAction(button.dataset.action, button));
 });
 document.querySelectorAll("[data-sort]").forEach((button) => {
   button.addEventListener("click", () => sortTiles(button.dataset.sort, button));
+});
+[els.auctionSearch, els.auctionRarity, els.auctionCategory, els.auctionMaxBid, els.auctionSort].forEach((control) => {
+  control?.addEventListener("input", renderAuctionsPage);
+  control?.addEventListener("change", renderAuctionsPage);
 });
 els.createGame.addEventListener("click", () => showMenu("createGameMenu"));
 els.quickDuel.addEventListener("click", () => {
@@ -3099,7 +3350,7 @@ els.musicClose.addEventListener("click", () => {
 els.miniSlotToggle.addEventListener("click", () => {
   els.reelsPanel.hidden = !els.reelsPanel.hidden;
 });
-els.slotLever.addEventListener("click", () => {
+els.slotLever?.addEventListener("click", () => {
   els.reelsPanel.hidden = !els.reelsPanel.hidden;
 });
 els.slotLeverLarge.addEventListener("click", spinMiniSlots);
@@ -3137,7 +3388,15 @@ els.profileBack.addEventListener("click", () => {
   }
 });
 els.profileClose.addEventListener("click", () => showMenu("mainMenu"));
-els.profileSettings.addEventListener("click", () => openModal("Profile Settings", "<p>Profile visibility, requests, badges, and notification settings live here.</p>"));
+els.profileSettings.addEventListener("click", () => openModal("Profile Settings", `
+  <div class="profile-setting-list">
+    <label><input type="checkbox" checked /> Show level badge</label>
+    <label><input type="checkbox" /> Private match history</label>
+    <label><input type="checkbox" checked /> Allow friend requests</label>
+    <label><input type="checkbox" checked /> Show easter egg badges</label>
+    <label><input type="checkbox" /> Hide online status</label>
+  </div>
+`));
 els.editProfileImage.addEventListener("click", openEditProfileModal);
 els.profileImageInput.addEventListener("change", handleProfileImageUpload);
 document.querySelectorAll("[data-social-search]").forEach((input) => {
@@ -3162,7 +3421,11 @@ els.creatorWeight.addEventListener("input", () => {
   updateCreatorColor();
 });
 document.querySelectorAll("[data-creator-choice]").forEach((select) => {
-  select.addEventListener("change", () => addLog(`Creator ${select.dataset.creatorChoice} set to ${select.value}.`));
+  select.addEventListener("change", () => {
+    state.ui.creatorChoices[select.dataset.creatorChoice] = Number(select.value);
+    applyCreatorChoices();
+    addLog(`Creator ${select.dataset.creatorChoice} set to ${select.value}.`);
+  });
 });
 els.liveChatButton.addEventListener("click", () => openModal("Kingdom Live Chat", "<p>Live realm chat appears here once the multiplayer chat backend is connected.</p><div class=\"faq-list\"><div class=\"faq-row\"><strong>Global</strong><span>Welcome to the kingdom chat.</span></div><div class=\"faq-row\"><strong>Match</strong><span>Match chat will appear during live games.</span></div></div>"));
 els.dmsButton.addEventListener("click", () => openModal("Direct Messages", "<p>DMs and group chats require sign-in and the friends backend.</p><div class=\"faq-list\"><div class=\"faq-row\"><strong>Group Chat</strong><span>Create parties, clans, and private strategy rooms.</span></div><div class=\"faq-row\"><strong>Inbox</strong><span>Your messages will sync after Firebase is configured.</span></div></div>"));

@@ -279,6 +279,14 @@ input[type="range"] {
   line-height: 1.1;
 }
 
+.royal-tile[data-action="variations"] strong::after,
+.royal-tile[data-action="players"] strong::after,
+.royal-tile[data-action="faq"] strong::after {
+  content: " v";
+  color: #f1d681;
+  font-size: 15px;
+}
+
 .royal-tile small {
   position: relative;
   z-index: 1;
@@ -327,6 +335,12 @@ input[type="range"] {
   border-radius: 8px;
   background: rgba(18, 25, 23, 0.94);
   box-shadow: 0 16px 34px rgba(0, 0, 0, 0.38);
+}
+
+.tile-dropdown.floating {
+  position: fixed;
+  z-index: 39;
+  width: min(360px, calc(100vw - 24px));
 }
 
 .tile-dropdown h3 {
@@ -466,6 +480,7 @@ input[type="range"] {
   background: linear-gradient(180deg, #efc663, #7c4817);
   transform: translateX(-50%) rotate(8deg);
   box-shadow: 0 0 0 5px rgba(0, 0, 0, 0.18);
+  transition: transform 160ms ease;
 }
 
 .slot-lever.pulled span {
@@ -562,7 +577,15 @@ input[type="range"] {
   border-radius: 50%;
   background: radial-gradient(circle at 35% 30%, #ff8c8c, #b30f0f 70%);
   transform: translateX(-50%);
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4);
+  box-shadow:
+    inset -5px -6px 10px rgba(80, 0, 0, 0.42),
+    inset 4px 4px 8px rgba(255, 255, 255, 0.35),
+    0 8px 16px rgba(0, 0, 0, 0.46);
+  transition: transform 160ms ease;
+}
+
+.slot-lever-large.pulled i {
+  transform: translateX(-50%) translateY(14px);
 }
 
 .slot-spin-button {
@@ -595,11 +618,16 @@ input[type="range"] {
 .side-home-button {
   position: fixed;
   z-index: 29;
-  min-width: 92px;
-  min-height: 48px;
-  border-color: rgba(215, 168, 66, 0.5);
+  width: 58px;
+  height: 58px;
+  min-width: 58px;
+  min-height: 58px;
+  padding: 0;
+  border-radius: 50%;
+  border-color: rgba(215, 168, 66, 0.68);
   background: rgba(18, 25, 23, 0.92);
   color: var(--gold);
+  font-size: 12px;
   font-weight: 900;
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.34);
 }
@@ -1803,6 +1831,157 @@ label {
   font-weight: 900;
 }
 
+.auction-page {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: 14px;
+}
+
+.auction-filter-panel,
+.auction-results-panel {
+  padding: 16px;
+  border: 1px solid rgba(215, 168, 66, 0.32);
+  border-radius: 8px;
+  background: rgba(18, 25, 23, 0.9);
+}
+
+.auction-filter-panel {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+}
+
+.auction-filter-panel input,
+.auction-filter-panel select {
+  width: 100%;
+}
+
+.auction-status-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  color: var(--muted);
+}
+
+.auction-status-line strong {
+  color: var(--gold);
+}
+
+.auction-listings {
+  display: grid;
+  gap: 10px;
+}
+
+.auction-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 14px;
+  align-items: center;
+}
+
+.auction-card h3 {
+  margin: 4px 0;
+  font-size: 20px;
+}
+
+.auction-rarity {
+  color: var(--gold);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.auction-numbers,
+.auction-actions {
+  display: grid;
+  gap: 6px;
+}
+
+.auction-numbers {
+  min-width: 128px;
+  color: var(--muted);
+  text-align: right;
+}
+
+.auction-numbers strong {
+  color: var(--ink);
+}
+
+.auction-empty {
+  padding: 20px;
+  border: 1px dashed rgba(215, 168, 66, 0.32);
+  border-radius: 8px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.achievement-hub {
+  display: grid;
+  gap: 12px;
+}
+
+.achievement-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.achievement-tabs button.active {
+  background: var(--gold);
+  color: #17130a;
+  border-color: #e1bd63;
+  font-weight: 900;
+}
+
+.achievement-prestige {
+  display: grid;
+  grid-template-columns: 1fr repeat(3, auto);
+  gap: 8px;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid rgba(215, 168, 66, 0.28);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.achievement-prestige span,
+.achievement-row small {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.tutorial-guide {
+  display: grid;
+  grid-template-columns: 190px 1fr;
+  gap: 14px;
+}
+
+.tutorial-character {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid rgba(215, 168, 66, 0.28);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.18);
+  text-align: center;
+}
+
+.mini-guide-avatar {
+  width: 96px;
+  height: 96px;
+  font-size: 38px;
+  background-size: cover;
+  background-position: center;
+}
+
+.modal-settings {
+  max-height: 540px;
+  overflow: auto;
+}
+
 @media (max-width: 1080px) {
   .game-layout {
     grid-template-columns: 240px minmax(320px, 1fr);
@@ -1852,11 +2031,15 @@ label {
   .menu-news-strip,
   .royal-filter-bar,
   .royal-tile-grid,
-  .profile-social-row,
-  .profile-layout,
-  .shop-grid,
-  .theme-grid,
-  .auction-grid,
+    .profile-social-row,
+    .profile-layout,
+    .auction-page,
+    .auction-card,
+    .achievement-prestige,
+    .tutorial-guide,
+    .shop-grid,
+    .theme-grid,
+    .auction-grid,
   .dropdown-grid,
   .field-toolbar {
     grid-template-columns: 1fr;
@@ -1910,6 +2093,10 @@ label {
 
   .chat-tools {
     grid-template-columns: 1fr;
+  }
+
+  .auction-numbers {
+    text-align: left;
   }
 
   .menu-brand h1 {

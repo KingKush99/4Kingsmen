@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>4Kingsmen</title>
-    <link id="gameFavicon" rel="icon" href="./images/favicon.ico" />
+    <link id="gameFavicon" rel="icon" href="./images/favicon/1.png" />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
@@ -49,7 +49,7 @@
           </div>
         </div>
       </div>
-      <button id="liveChatButton" class="side-home-button live-side-button" type="button">Live Chat</button>
+      <button id="liveChatButton" class="side-home-button live-side-button" type="button" aria-label="Live chat">Live</button>
       <button id="dmsButton" class="side-home-button dms-side-button" type="button">DMs</button>
     </div>
     <div id="menuOverlay" class="menu-overlay">
@@ -195,6 +195,72 @@
         </div>
       </section>
 
+      <section id="auctionsMenu" class="menu-screen setup-screen">
+        <div class="menu-header">
+          <button class="back-button" data-menu-target="mainMenu" type="button">Back</button>
+          <div>
+            <span>Royal Market</span>
+            <h2>Auctions</h2>
+          </div>
+        </div>
+        <div class="auction-page">
+          <aside class="auction-filter-panel">
+            <h3>Filters</h3>
+            <label>
+              Search
+              <input id="auctionSearch" type="search" placeholder="Banner, relic, title..." />
+            </label>
+            <label>
+              Rarity
+              <select id="auctionRarity">
+                <option value="all">All rarities</option>
+                <option value="Common">Common</option>
+                <option value="Rare">Rare</option>
+                <option value="Epic">Epic</option>
+                <option value="Legendary">Legendary</option>
+              </select>
+            </label>
+            <label>
+              Category
+              <select id="auctionCategory">
+                <option value="all">All categories</option>
+                <option value="Banners">Banners</option>
+                <option value="Frames">Frames</option>
+                <option value="Relics">Relics</option>
+                <option value="Titles">Titles</option>
+                <option value="Themes">Themes</option>
+              </select>
+            </label>
+            <label>
+              Max Bid
+              <select id="auctionMaxBid">
+                <option value="99999">Any price</option>
+                <option value="100">100 coins</option>
+                <option value="250">250 coins</option>
+                <option value="500">500 coins</option>
+                <option value="1000">1000 coins</option>
+              </select>
+            </label>
+            <label>
+              Sort
+              <select id="auctionSort">
+                <option value="ending">Ending soon</option>
+                <option value="bidAsc">Lowest bid</option>
+                <option value="bidDesc">Highest bid</option>
+                <option value="rarity">Rarity</option>
+              </select>
+            </label>
+          </aside>
+          <div class="auction-results-panel">
+            <div class="auction-status-line">
+              <strong id="auctionResultCount">0 listings</strong>
+              <span>Server validation required before real coin bids are accepted.</span>
+            </div>
+            <div id="auctionListings" class="auction-listings"></div>
+          </div>
+        </div>
+      </section>
+
       <section id="profileMenu" class="menu-screen setup-screen">
         <div class="menu-header profile-menu-header">
           <button id="profileBackButton" class="back-button" type="button">Back</button>
@@ -276,14 +342,6 @@
               <section>
                 <h3>Achievements</h3>
                 <div id="profileAchievements" class="badge-grid"></div>
-              </section>
-              <section>
-                <h3>Profile Settings</h3>
-                <div class="profile-setting-list">
-                  <label><input type="checkbox" checked /> Show level badge</label>
-                  <label><input type="checkbox" /> Private match history</label>
-                  <label><input type="checkbox" checked /> Allow friend requests</label>
-                </div>
               </section>
             </div>
           </div>
